@@ -21,7 +21,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onItemClick }) => {
       className="start-menu absolute left-0 bottom-7 w-[180px] border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] bg-[#C0C0C0] z-10"
     >
       <div className="flex bg-[#000080] text-white p-1 items-center">
-        <img src={computerIcon} alt="Windows 95" className="mr-2 h-6 w-6" />
+        <img src={computerIcon} alt="Windows 96" className="mr-2 h-6 w-6" />
         <div className="font-bold text-sm">Windows 95</div>
       </div>
       
