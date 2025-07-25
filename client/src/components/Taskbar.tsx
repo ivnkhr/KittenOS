@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import TaskbarButton from './TaskbarButton';
-import { WindowState } from '@/lib/types';
+import { WindowState } from '../lib/types';
 
 // Import SVG icons
-import startIcon from '@/assets/icons/start.svg';
+import startIcon from '../assets/icons/start.svg';
 
 interface TaskbarProps {
   windows: WindowState[];
-  onStartClick: () => void;
-  onTaskbarButtonClick: (id: string) => void;
   activeWindowId: string | null;
+  onWindowClick: (id: string) => void;
+  onStartClick: () => void;
 }
 
 const Taskbar: React.FC<TaskbarProps> = ({ 
   windows, 
-  onStartClick, 
-  onTaskbarButtonClick,
-  activeWindowId
+  activeWindowId,
+  onWindowClick,
+  onStartClick
 }) => {
   const [time, setTime] = useState<string>(getCurrentTime());
 
@@ -60,7 +60,7 @@ const Taskbar: React.FC<TaskbarProps> = ({
             title={window.title}
             icon={window.icon}
             isActive={activeWindowId === window.id && !window.isMinimized}
-            onClick={() => onTaskbarButtonClick(window.id)}
+            onClick={() => onWindowClick(window.id)}
           />
         ))}
       </div>

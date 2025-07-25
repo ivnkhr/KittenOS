@@ -1,20 +1,21 @@
 import React from 'react';
-import { AppType } from '@/lib/types';
+import { AppType } from '../lib/types';
 
 // Import SVG icons
-import computerIcon from '@/assets/icons/computer.svg';
-import cvIcon from '@/assets/icons/cv.svg';
-import projectsIcon from '@/assets/icons/directory.svg';
-import contactsIcon from '@/assets/icons/msn.svg';
-import helpIcon from '@/assets/icons/help.svg';
-import runIcon from '@/assets/icons/run.svg';
-import shutdownIcon from '@/assets/icons/shutdown.svg';
+import computerIcon from '../assets/icons/computer.svg';
+import cvIcon from '../assets/icons/cv.svg';
+import projectsIcon from '../assets/icons/directory.svg';
+import contactsIcon from '../assets/icons/msn.svg';
+import helpIcon from '../assets/icons/help.svg';
+import runIcon from '../assets/icons/run.svg';
+import shutdownIcon from '../assets/icons/shutdown.svg';
 
 interface StartMenuProps {
-  onItemClick: (appType: AppType) => void;
+  onClose: () => void;
+  onOpenApp: (appType: AppType) => void;
 }
 
-const StartMenu: React.FC<StartMenuProps> = ({ onItemClick }) => {
+const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
   return (
     <div 
       id="start-menu" 
@@ -28,7 +29,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onItemClick }) => {
       <div className="border-t border-[#808080]">
         <div 
           className="flex items-center p-1 hover:bg-[#000080] hover:text-white cursor-pointer" 
-          onClick={() => onItemClick('cv')}
+          onClick={() => onOpenApp('cv')}
         >
           <img src={cvIcon} alt="CV" className="mr-2 h-6 w-6" />
           <span className="text-sm">My CV</span>
@@ -36,7 +37,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onItemClick }) => {
         
         <div 
           className="flex items-center p-1 hover:bg-[#000080] hover:text-white cursor-pointer" 
-          onClick={() => onItemClick('projects')}
+          onClick={() => onOpenApp('projects')}
         >
           <img src={projectsIcon} alt="Projects" className="mr-2 h-6 w-6" />
           <span className="text-sm">Projects</span>
@@ -44,7 +45,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onItemClick }) => {
         
         <div 
           className="flex items-center p-1 hover:bg-[#000080] hover:text-white cursor-pointer" 
-          onClick={() => onItemClick('contacts')}
+          onClick={() => onOpenApp('contacts')}
         >
           <img src={contactsIcon} alt="Contacts" className="mr-2 h-6 w-6" />
           <span className="text-sm">Contacts</span>
@@ -54,7 +55,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onItemClick }) => {
         
         <div 
           className="flex items-center p-1 hover:bg-[#000080] hover:text-white cursor-pointer" 
-          onClick={() => onItemClick('computer')}
+          onClick={() => onOpenApp('computer')}
         >
           <img src={helpIcon} alt="Help" className="mr-2 h-6 w-6" />
           <span className="text-sm">Help</span>

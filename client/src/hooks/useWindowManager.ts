@@ -1,13 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { WindowState, AppType, StoredWindowPosition } from '@/lib/types';
+import { WindowState, AppType, StoredWindowPosition } from '../lib/types';
 
 // Import icons for windows
-import cvIcon from '@/assets/icons/notepad.svg';
-import projectsIcon from '@/assets/icons/directory.svg';
-import contactsIcon from '@/assets/icons/msn.svg';
-import computerIcon from '@/assets/icons/computer.svg';
-import recycleIcon from '@/assets/icons/recycle.svg';
+import cvIcon from '../assets/icons/notepad.svg';
+import projectsIcon from '../assets/icons/directory.svg';
+import contactsIcon from '../assets/icons/msn.svg';
+import computerIcon from '../assets/icons/computer.svg';
+import recycleIcon from '../assets/icons/recycle.svg';
 
 // Window initial properties map
 const initialWindowProps = {
@@ -180,7 +180,7 @@ export function useWindowManager() {
     try {
       const savedPositions = JSON.parse(localStorage.getItem('windowPositions') || '[]');
       const savedPosition = savedPositions.find((pos: StoredWindowPosition) => pos.windowId === windowId);
-      const defaultProps = initialWindowProps[appType];
+      const defaultProps = initialWindowProps[appType as keyof typeof initialWindowProps];
       
       if (savedPosition) {
         return {
@@ -252,7 +252,7 @@ export function useWindowManager() {
     }
     
     // Get initial properties for the window type
-    let props = initialWindowProps[appType];
+    let props = initialWindowProps[appType as keyof typeof initialWindowProps];
     
     // Handle dynamic project windows
     if (!props && appType.startsWith('project-')) {

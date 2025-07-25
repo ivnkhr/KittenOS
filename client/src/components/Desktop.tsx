@@ -1,10 +1,10 @@
-import { useWindowManager } from '@/hooks/useWindowManager';
+import { useWindowManager } from '../hooks/useWindowManager';
 import Window from './Window';
 import Taskbar from './Taskbar';
 import DesktopIcon from './DesktopIcon';
 import StartMenu from './StartMenu';
 import { useState } from 'react';
-import { Project } from '@/lib/types';
+import { Project } from '../lib/types';
 
 // App components
 import CV from './apps/CV';
@@ -12,6 +12,13 @@ import Projects from './apps/Projects';
 import Contacts from './apps/Contacts';
 import MyComputer from './apps/MyComputer';
 import Winamp from './apps/Winamp';
+
+// Import desktop icons
+import computerIcon from '../assets/icons/computer.svg';
+import directoryIcon from '../assets/icons/directory.svg';
+import notepadIcon from '../assets/icons/notepad.svg';
+import msnIcon from '../assets/icons/msn.svg';
+import recycleIcon from '../assets/icons/recycle.svg';
 
 interface DesktopProps {
   projects: Project[];
@@ -72,27 +79,27 @@ export default function Desktop({ projects }: DesktopProps) {
       {/* Desktop Icons */}
       <div className="absolute top-4 left-4 flex flex-col gap-4">
         <DesktopIcon
-          icon="/src/assets/icons/computer.svg"
+          icon={computerIcon}
           label="My Computer"
           onDoubleClick={() => openWindow('computer')}
         />
         <DesktopIcon
-          icon="/src/assets/icons/directory.svg"
+          icon={directoryIcon}
           label="Projects"
           onDoubleClick={() => openWindow('projects')}
         />
         <DesktopIcon
-          icon="/src/assets/icons/notepad.svg"
+          icon={notepadIcon}
           label="Blog"
           onDoubleClick={() => openWindow('cv')}
         />
         <DesktopIcon
-          icon="/src/assets/icons/msn.svg"
+          icon={msnIcon}
           label="Contact"
           onDoubleClick={() => openWindow('contacts')}
         />
         <DesktopIcon
-          icon="/src/assets/icons/recycle.svg"
+          icon={recycleIcon}
           label="Recycle Bin"
           onDoubleClick={() => openWindow('recycle')}
         />
@@ -102,7 +109,14 @@ export default function Desktop({ projects }: DesktopProps) {
       {windows.map((window) => (
         <Window
           key={window.id}
-          window={window}
+          id={window.id}
+          title={window.title}
+          icon={window.icon}
+          position={window.position}
+          size={window.size}
+          isMinimized={window.isMinimized}
+          isMaximized={window.isMaximized}
+          zIndex={window.zIndex}
           isActive={activeWindowId === window.id}
           onClose={() => closeWindow(window.id)}
           onMinimize={() => minimizeWindow(window.id)}

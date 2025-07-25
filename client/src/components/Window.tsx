@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Position, Size } from '@/lib/types';
+import { Position, Size } from '../lib/types';
 
 interface WindowProps {
   id: string;

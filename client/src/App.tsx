@@ -51,12 +51,15 @@ function App() {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
+    console.log("App component mounted");
     // Load static projects data
     setProjects(staticProjects);
+    console.log("Projects loaded:", staticProjects);
   }, []);
 
+  console.log("App component rendering...");
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#008080] relative">
+    <div className="h-screen w-screen overflow-hidden" style={{backgroundColor: '#008080'}}>
       <Desktop projects={projects} />
     </div>
   );

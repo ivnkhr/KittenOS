@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 import { Play, Pause, SkipForward, SkipBack, Volume2 } from 'lucide-react';
 
 export default function Winamp() {
