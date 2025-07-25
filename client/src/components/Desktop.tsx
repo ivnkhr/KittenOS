@@ -27,6 +27,11 @@ const Desktop = () => {
     // Get the targeted element
     const target = e.target as HTMLElement;
     
+    // Don't close start menu if clicking on desktop icons
+    if (target.closest('.desktop-icon')) {
+      return;
+    }
+    
     // Check if the click is outside the start menu and start button
     if (isStartMenuOpen && !target.closest('#start-menu') && !target.closest('#start-button')) {
       setIsStartMenuOpen(false);

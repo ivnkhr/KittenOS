@@ -74,7 +74,7 @@ const initialWindowProps = {
   winamp: {
     title: 'Winamp',
     icon: computerIcon,
-    position: { x: 300, y: 200 },
+    position: { x: 150, y: 150 },
     size: { width: '400px', height: '300px' },
     renderType: 'component' as const
   }
@@ -147,6 +147,16 @@ export function useWindowManager() {
 
   // Function to save window position
   const handlePositionChange = (appType: AppType, position: any, size: any, isMaximized: boolean) => {
+    // Update window state immediately
+    setWindows(prevWindows => 
+      prevWindows.map(window => 
+        window.type === appType 
+          ? { ...window, position, size, isMaximized }
+          : window
+      )
+    );
+    
+    // Save to localStorage
     saveWindowPosition({
       appType,
       x: position.x,

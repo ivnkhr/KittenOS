@@ -54,11 +54,12 @@ const Window: React.FC<WindowProps> = ({
   // Save window position mutation (removed as it's handled by parent component)
 
   // Update position when position prop changes (for window management)
+  // Only update if we're not currently dragging and the position has actually changed
   useEffect(() => {
-    if (!dragging) {
+    if (!dragging && (position.x !== pos.x || position.y !== pos.y)) {
       setPos(position);
     }
-  }, [position, dragging]);
+  }, [position.x, position.y, dragging]);
 
   // Update URL states when iframeUrl prop changes
   useEffect(() => {
@@ -133,10 +134,15 @@ const Window: React.FC<WindowProps> = ({
     };
     
     const handleMouseUp = () => {
-      if (dragging && onPositionChange) {
-        onPositionChange(pos, windowSize, isMaximized);
+      if (dragging) {
+        setDragging(false);
+        // Save position after a short delay to ensure state is updated
+        if (onPositionChange) {
+          setTimeout(() => {
+            onPositionChange(pos, windowSize, isMaximized);
+          }, 0);
+        }
       }
-      setDragging(false);
     };
     
     if (dragging) {

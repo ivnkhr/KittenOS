@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a Windows 95-themed developer portfolio application that recreates the nostalgic desktop environment of the 1990s. The application features a fully functional desktop interface with draggable windows, a taskbar, start menu, and various "applications" including a CV viewer, projects showcase, and contact form. The project uses a modern full-stack architecture with React frontend and Express backend, styled to authentically replicate the Windows 95 aesthetic.
+This is a Windows 95-themed developer portfolio application that recreates the nostalgic desktop environment of the 1990s. The application features a fully functional desktop interface with draggable windows, a taskbar, start menu, and various "applications" including a CV viewer (iframe), projects showcase, contact form, and Winamp music player. The project uses a modern full-stack architecture with React frontend and Express backend, styled to authentically replicate the Windows 95 aesthetic. Window positions are persisted in localStorage for seamless user experience across sessions.
 
 ## User Preferences
 
@@ -22,10 +22,11 @@ The application follows a monorepo structure with clear separation between clien
 
 ### Frontend Architecture
 - **Desktop Environment**: Complete Windows 95 desktop simulation with draggable windows, taskbar, and start menu
-- **Window Management**: Custom hook (`useWindowManager`) handles window state, positioning, and z-index management
-- **Applications**: Modular app components (CV, Projects, Contacts, My Computer) that render within windows
+- **Window Management**: Custom hook (`useWindowManager`) handles window state, positioning, and z-index management with localStorage persistence
+- **Applications**: Modular app components (CV iframe, Projects shortcuts, Contacts, Winamp music player, My Computer) that render within windows
+- **Iframe Windows**: Enhanced with URL toolbar and "Go" button functionality for opening links in new tabs
 - **UI Components**: Extensive shadcn/ui component library with custom Windows 95 styling
-- **State Management**: React Query for server state management and React hooks for local state
+- **State Management**: React hooks for local state management (removed React Query dependency for window positions)
 
 ### Backend Architecture
 - **RESTful API**: Express.js server providing endpoints for projects, contacts, and window positions
@@ -33,11 +34,8 @@ The application follows a monorepo structure with clear separation between clien
 - **Data Validation**: Zod schemas for request/response validation
 - **Development Setup**: Vite integration for hot module replacement in development
 
-### Database Schema
-- **Projects**: Stores portfolio projects with metadata, demo URLs, and display preferences
-- **Contact Messages**: Handles contact form submissions
-- **Window Positions**: Persists user's window arrangements across sessions
-- **Users**: Basic user management (prepared for future authentication)
+### Local Storage Schema
+- **Window Positions**: Persists user's window arrangements in browser localStorage (replaced database storage for better performance and user-specific data)
 
 ## Data Flow
 
@@ -89,4 +87,26 @@ The application is designed for deployment on platforms that support Node.js app
    - Development mode includes Vite integration for hot reloading
    - Error handling with proper HTTP status codes
 
-The architecture prioritizes developer experience with hot reloading, type safety throughout the stack, and modular design that makes it easy to add new "applications" to the Windows 95 desktop environment.
+## Recent Changes (January 2025)
+
+### Window Position Persistence Fix
+- Migrated from database to localStorage for window position storage
+- Fixed dragging behavior to prevent windows from snapping back to original positions
+- Enhanced window state management for real-time position updates
+
+### Enhanced Iframe Windows
+- Added URL toolbar with address bar and "Go" button for iframe windows
+- Implemented functionality to open URLs in new tabs via the Go button
+- Adjusted window content height to accommodate the URL toolbar
+
+### New Winamp Application
+- Created authentic Winamp-style music player component
+- Added support for YouTube playlist URL input
+- Positioned as desktop icon with proper window management
+
+### Desktop Icon Improvements
+- Fixed desktop icon click detection with proper CSS classes
+- Enhanced desktop click handling to preserve icon functionality
+- Added proper event handling to prevent interference with start menu
+
+The architecture prioritizes developer experience with hot reloading, type safety throughout the stack, modular design for easy application additions, and authentic Windows 95 user experience with persistent window management.

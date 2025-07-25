@@ -9,7 +9,7 @@ interface DesktopIconProps {
 const DesktopIcon: React.FC<DesktopIconProps> = ({ title, icon, onDoubleClick }) => {
   return (
     <div 
-      className="w-[75px] h-[80px] flex flex-col items-center text-center select-none cursor-pointer"
+      className="desktop-icon w-[75px] h-[80px] flex flex-col items-center text-center select-none cursor-pointer"
       onDoubleClick={onDoubleClick}
     >
       <img src={icon} alt={title} className="w-8 h-8 mb-1" />
