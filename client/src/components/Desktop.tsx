@@ -1,235 +1,146 @@
-import { useState, useEffect } from "react";
-import DesktopIcon from "./DesktopIcon";
-import Window from "./Window";
-import Taskbar from "./Taskbar";
-import StartMenu from "./StartMenu";
-import CV from "./apps/CV";
-import Projects from "./apps/Projects";
-import Contacts from "./apps/Contacts";
-import MyComputer from "./apps/MyComputer";
-import Winamp from "./apps/Winamp";
-import { useWindowManager } from "@/hooks/useWindowManager";
-import { AppType } from "@/lib/types";
+import { useWindowManager } from '@/hooks/useWindowManager';
+import Window from './Window';
+import Taskbar from './Taskbar';
+import DesktopIcon from './DesktopIcon';
+import StartMenu from './StartMenu';
+import { useState } from 'react';
+import { Project } from '@/lib/types';
 
-// Import SVG icons
-import cvIcon from "@/assets/icons/cv.svg";
-import projectsIcon from "@/assets/icons/directory.svg";
-import contactsIcon from "@/assets/icons/msn.svg";
-import computerIcon from "@/assets/icons/computer.svg";
-import recycleIcon from "@/assets/icons/recycle.svg";
+// App components
+import CV from './apps/CV';
+import Projects from './apps/Projects';
+import Contacts from './apps/Contacts';
+import MyComputer from './apps/MyComputer';
+import Winamp from './apps/Winamp';
 
-const Desktop = () => {
-  const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
+interface DesktopProps {
+  projects: Project[];
+}
+
+export default function Desktop({ projects }: DesktopProps) {
   const {
     windows,
+    activeWindowId,
     openWindow,
     closeWindow,
     minimizeWindow,
     maximizeWindow,
     bringToFront,
-    activeWindowId,
-    handlePositionChange,
+    handlePositionChange
   } = useWindowManager();
 
-  // Close start menu when clicking on desktop
-  const handleDesktopClick = (e: React.MouseEvent) => {
-    // Get the targeted element
-    const target = e.target as HTMLElement;
+  const [showStartMenu, setShowStartMenu] = useState(false);
 
-    // Don't close start menu if clicking on desktop icons
-    if (target.closest(".desktop-icon")) {
-      return;
-    }
-
-    // Check if the click is outside the start menu and start button
-    if (
-      isStartMenuOpen &&
-      !target.closest("#start-menu") &&
-      !target.closest("#start-button")
-    ) {
-      setIsStartMenuOpen(false);
-    }
+  const handleOpenProject = (project: Project) => {
+    const appType = `project-${project.title.toLowerCase().replace(/\s+/g, '')}` as any;
+    openWindow(appType, project.demoUrl);
   };
 
-  // Toggle start menu
-  const toggleStartMenu = () => {
-    setIsStartMenuOpen((prev) => !prev);
-  };
-
-  // Handle desktop icon double click
-  const handleIconDoubleClick = (appType: AppType) => {
-    openWindow(appType);
-    setIsStartMenuOpen(false);
-  };
-
-  // Handle start menu item click
-  const handleStartMenuItemClick = (appType: AppType) => {
-    openWindow(appType);
-    setIsStartMenuOpen(false);
-  };
-
-  // Display a welcome window when the application starts
-  useEffect(() => {
-    setTimeout(() => {
-      openWindow("winamp");
-    }, 500);
-  }, []);
-
-  // Desktop icons configuration
-  const desktopIcons = [
-    { id: "cv", title: "My CV", icon: cvIcon, appType: "cv" as AppType },
-    {
-      id: "projects",
-      title: "Projects",
-      icon: projectsIcon,
-      appType: "projects" as AppType,
-    },
-    {
-      id: "contacts",
-      title: "Contacts",
-      icon: contactsIcon,
-      appType: "contacts" as AppType,
-    },
-    {
-      id: "winamp",
-      title: "Winamp",
-      icon: computerIcon,
-      appType: "winamp" as AppType,
-    },
-    {
-      id: "computer",
-      title: "My Computer",
-      icon: computerIcon,
-      appType: "computer" as AppType,
-    },
-    {
-      id: "recycle",
-      title: "Recycle Bin",
-      icon: recycleIcon,
-      appType: "recycle" as AppType,
-    },
-  ];
-
-  // Handle project window opening
-  const handleProjectOpen = (projectKey: string, projectUrl: string) => {
-    openWindow(projectKey as AppType, projectUrl);
-  };
-
-  // Render app content based on type
-  const renderAppContent = (type: AppType) => {
-    switch (type) {
-      case "cv":
+  const renderWindowContent = (window: any) => {
+    switch (window.type) {
+      case 'cv':
         return <CV />;
-      case "projects":
-        return <Projects onProjectOpen={handleProjectOpen} />;
-      case "contacts":
+      case 'projects':
+        return <Projects projects={projects} onOpenProject={handleOpenProject} />;
+      case 'contacts':
         return <Contacts />;
-      case "winamp":
-        return <Winamp />;
-      case "computer":
+      case 'computer':
         return <MyComputer />;
-      case "recycle":
-        return <div>Recycle Bin is empty</div>;
+      case 'winamp':
+        return <Winamp />;
+      case 'recycle':
+        return <div className="p-4"><h2>Recycle Bin</h2><p>No items in recycle bin.</p></div>;
       default:
-        return <div>App not found</div>;
+        if (window.type.startsWith('project-')) {
+          const project = projects.find(p => 
+            `project-${p.title.toLowerCase().replace(/\s+/g, '')}` === window.type
+          );
+          return (
+            <iframe
+              src={project?.demoUrl || 'about:blank'}
+              className="w-full h-full border-0"
+              title={window.title}
+            />
+          );
+        }
+        return <div className="p-4">Unknown application type: {window.type}</div>;
     }
   };
 
   return (
-    <div
-      className="bg-[#008080] h-screen w-screen overflow-hidden select-none relative"
-      onClick={handleDesktopClick}
-    >
+    <div className="h-full w-full relative bg-[#008080] overflow-hidden">
       {/* Desktop Icons */}
-      <div className="absolute top-2 left-2 flex flex-col gap-4 p-2">
-        {desktopIcons.map((icon) => (
-          <DesktopIcon
-            key={icon.id}
-            title={icon.title}
-            icon={icon.icon}
-            onDoubleClick={() => handleIconDoubleClick(icon.appType)}
-          />
-        ))}
+      <div className="absolute top-4 left-4 flex flex-col gap-4">
+        <DesktopIcon
+          icon="/src/assets/icons/computer.svg"
+          label="My Computer"
+          onDoubleClick={() => openWindow('computer')}
+        />
+        <DesktopIcon
+          icon="/src/assets/icons/directory.svg"
+          label="Projects"
+          onDoubleClick={() => openWindow('projects')}
+        />
+        <DesktopIcon
+          icon="/src/assets/icons/notepad.svg"
+          label="Blog"
+          onDoubleClick={() => openWindow('cv')}
+        />
+        <DesktopIcon
+          icon="/src/assets/icons/msn.svg"
+          label="Contact"
+          onDoubleClick={() => openWindow('contacts')}
+        />
+        <DesktopIcon
+          icon="/src/assets/icons/recycle.svg"
+          label="Recycle Bin"
+          onDoubleClick={() => openWindow('recycle')}
+        />
       </div>
 
       {/* Windows */}
-      <div className="absolute inset-0 pb-7">
-        {windows.map((window) => {
-          // Determine render type and URL based on window type
-          let renderType: "component" | "iframe" = "component";
-          let iframeUrl: string | undefined;
-
-          if (window.type === "cv") {
-            renderType = "iframe";
-            iframeUrl = "https://example.com/blog";
-          } else if (window.type.startsWith("project-")) {
-            renderType = "iframe";
-            // Use project-specific URLs based on the project type
-            const projectUrls = {
-              "project-lesstube":
-                "https://chrome.google.com/webstore/detail/lesstube",
-              "project-mentalquest": "https://mentalquest.app",
-              "project-legacyspace": "https://legacyspace.mobile",
-            };
-            iframeUrl =
-              projectUrls[window.type as keyof typeof projectUrls] ||
-              "https://github.com";
+      {windows.map((window) => (
+        <Window
+          key={window.id}
+          window={window}
+          isActive={activeWindowId === window.id}
+          onClose={() => closeWindow(window.id)}
+          onMinimize={() => minimizeWindow(window.id)}
+          onMaximize={() => maximizeWindow(window.id)}
+          onBringToFront={() => bringToFront(window.id)}
+          onPositionChange={(position, size, isMaximized) => 
+            handlePositionChange(window.id, position, size, isMaximized)
           }
-
-          return (
-            <Window
-              key={window.id}
-              id={window.id}
-              title={window.title}
-              icon={window.icon}
-              position={window.position}
-              size={window.size}
-              isMinimized={window.isMinimized}
-              isMaximized={window.isMaximized}
-              zIndex={window.zIndex}
-              onClose={() => closeWindow(window.id)}
-              onMinimize={() => minimizeWindow(window.id)}
-              onMaximize={() => maximizeWindow(window.id)}
-              onBringToFront={() => bringToFront(window.id)}
-              onPositionChange={(position, size, isMaximized) =>
-                handlePositionChange(window.id, position, size, isMaximized)
-              }
-              isActive={activeWindowId === window.id}
-              renderType={renderType}
-              iframeUrl={iframeUrl}
-            >
-              {renderType === "component"
-                ? renderAppContent(window.type)
-                : null}
-            </Window>
-          );
-        })}
-      </div>
+        >
+          {renderWindowContent(window)}
+        </Window>
+      ))}
 
       {/* Start Menu */}
-      {isStartMenuOpen && <StartMenu onItemClick={handleStartMenuItemClick} />}
+      {showStartMenu && (
+        <StartMenu
+          onClose={() => setShowStartMenu(false)}
+          onOpenApp={(appType) => {
+            openWindow(appType);
+            setShowStartMenu(false);
+          }}
+        />
+      )}
 
       {/* Taskbar */}
       <Taskbar
         windows={windows}
-        onStartClick={toggleStartMenu}
-        onTaskbarButtonClick={(id) => {
-          const window = windows.find((w) => w.id === id);
-          if (window) {
-            if (window.isMinimized) {
-              minimizeWindow(id); // This will toggle the minimized state
-              bringToFront(id);
-            } else if (activeWindowId === id) {
-              minimizeWindow(id);
-            } else {
-              bringToFront(id);
-            }
+        activeWindowId={activeWindowId}
+        onWindowClick={(id) => {
+          const window = windows.find(w => w.id === id);
+          if (window?.isMinimized) {
+            minimizeWindow(id);
+          } else {
+            bringToFront(id);
           }
         }}
-        activeWindowId={activeWindowId}
+        onStartClick={() => setShowStartMenu(!showStartMenu)}
       />
     </div>
   );
-};
-
-export default Desktop;
+}

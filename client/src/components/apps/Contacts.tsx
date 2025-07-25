@@ -1,173 +1,157 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import { insertContactMessageSchema } from '@shared/schema';
-import { useToast } from '@/hooks/use-toast';
 
-// Import contact-related icons
-import mailIcon from '@/assets/icons/mail.svg';
-import phoneIcon from '@/assets/icons/phone.svg';
-import globeIcon from '@/assets/icons/globe.svg';
-import worldIcon from '@/assets/icons/world.svg';
-import networkIcon from '@/assets/icons/network.svg';
-import codeIcon from '@/assets/icons/api.svg';
-import messageIcon from '@/assets/icons/chat.svg';
-import profileIcon from '@/assets/icons/profile.svg';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { ContactMessage, StoredContactMessage } from '@/lib/types';
 
-// Extend the contact message schema with validation
-const contactFormSchema = insertContactMessageSchema.extend({
-  email: z.string().email('Please enter a valid email address'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  subject: z.string().min(3, 'Subject must be at least 3 characters'),
-});
-
-type ContactFormData = z.infer<typeof contactFormSchema>;
-
-const Contacts: React.FC = () => {
-  const { toast } = useToast();
-
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>({
-    resolver: zodResolver(contactFormSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      subject: '',
-      message: ''
-    }
+export default function Contacts() {
+  const [formData, setFormData] = useState<ContactMessage>({
+    name: '',
+    email: '',
+    message: ''
   });
+  const [messages, setMessages] = useState<StoredContactMessage[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const mutation = useMutation({
-    mutationFn: (data: ContactFormData) => {
-      return apiRequest('POST', '/api/contact', data);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Message sent",
-        description: "Your message has been sent successfully!",
-      });
-      reset();
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to send message: ${(error as Error).message}`,
-        variant: "destructive",
-      });
+  // Load messages from localStorage
+  useEffect(() => {
+    try {
+      const savedMessages = localStorage.getItem('contactMessages');
+      if (savedMessages) {
+        setMessages(JSON.parse(savedMessages));
+      }
+    } catch (error) {
+      console.error('Failed to load contact messages:', error);
     }
-  });
+  }, []);
 
-  const onSubmit = (data: ContactFormData) => {
-    mutation.mutate(data);
+  // Save messages to localStorage
+  const saveMessages = (updatedMessages: StoredContactMessage[]) => {
+    try {
+      localStorage.setItem('contactMessages', JSON.stringify(updatedMessages));
+      setMessages(updatedMessages);
+    } catch (error) {
+      console.error('Failed to save contact messages:', error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+      // Simulate form submission delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Create new message with timestamp
+      const newMessage: StoredContactMessage = {
+        ...formData,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString()
+      };
+      
+      // Save to localStorage
+      const updatedMessages = [...messages, newMessage];
+      saveMessages(updatedMessages);
+      
+      // Reset form
+      setFormData({ name: '', email: '', message: '' });
+      setSubmitStatus('success');
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setSubmitStatus('idle'), 3000);
+    } catch (error) {
+      console.error('Failed to submit message:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4 font-['MS_Sans_Serif',sans-serif] text-xs">
-      {/* Contact Info */}
-      <div className="bg-white p-3 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] mb-4">
-        <div className="font-bold mb-2">Contact Information</div>
-        <div className="grid grid-cols-1 gap-1">
-          <div className="flex items-center">
-            <img src={mailIcon} alt="Email" className="mr-2 h-4 w-4" />
-            <span>john.doe@example.com</span>
-          </div>
-          <div className="flex items-center">
-            <img src={phoneIcon} alt="Phone" className="mr-2 h-4 w-4" />
-            <span>(123) 456-7890</span>
-          </div>
-          <div className="flex items-center">
-            <img src={globeIcon} alt="Website" className="mr-2 h-4 w-4" />
-            <span>www.johndoe-dev.example.com</span>
-          </div>
-          <div className="flex items-center">
-            <img src={worldIcon} alt="Location" className="mr-2 h-4 w-4" />
-            <span>San Francisco, CA</span>
-          </div>
-        </div>
-      </div>
-      
-      {/* Contact Form */}
-      <div className="bg-white p-3 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080]">
-        <div className="font-bold mb-2">Send Me a Message</div>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="mb-2">
-            <label className="block mb-1">Your Name:</label>
-            <input 
-              type="text" 
-              className="w-full border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] bg-white p-1"
-              {...register('name')} 
+    <div className="p-4 h-full flex flex-col">
+      <div className="flex-1 overflow-auto">
+        <h2 className="text-lg font-bold mb-4">Contact Me</h2>
+        
+        <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+          <div>
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
             />
-            {errors.name && <span className="text-red-600 text-xs">{errors.name.message}</span>}
           </div>
           
-          <div className="mb-2">
-            <label className="block mb-1">Your Email:</label>
-            <input 
-              type="email" 
-              className="w-full border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] bg-white p-1"
-              {...register('email')} 
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
             />
-            {errors.email && <span className="text-red-600 text-xs">{errors.email.message}</span>}
           </div>
           
-          <div className="mb-2">
-            <label className="block mb-1">Subject:</label>
-            <input 
-              type="text" 
-              className="w-full border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] bg-white p-1"
-              {...register('subject')} 
+          <div>
+            <Label htmlFor="message">Message</Label>
+            <Textarea
+              id="message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              required
+              disabled={isSubmitting}
+              rows={4}
             />
-            {errors.subject && <span className="text-red-600 text-xs">{errors.subject.message}</span>}
           </div>
           
-          <div className="mb-3">
-            <label className="block mb-1">Message:</label>
-            <textarea 
-              className="w-full border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] bg-white p-1 h-20 resize-none"
-              {...register('message')} 
-            ></textarea>
-            {errors.message && <span className="text-red-600 text-xs">{errors.message.message}</span>}
-          </div>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Sending...' : 'Send Message'}
+          </Button>
           
-          <div className="flex justify-end">
-            <button 
-              type="submit" 
-              className="px-3 py-1 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] bg-[#C0C0C0]"
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending ? 'Sending...' : 'Send Message'}
-            </button>
-          </div>
+          {submitStatus === 'success' && (
+            <p className="text-green-600 text-sm">Message sent successfully!</p>
+          )}
+          {submitStatus === 'error' && (
+            <p className="text-red-600 text-sm">Failed to send message. Please try again.</p>
+          )}
         </form>
-      </div>
-      
-      {/* Social Media */}
-      <div className="bg-white p-3 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080]">
-        <div className="font-bold mb-2">Connect With Me</div>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="flex items-center cursor-pointer hover:bg-[#D4D0C8]">
-            <img src={networkIcon} alt="LinkedIn" className="mr-2 h-4 w-4" />
-            <span>LinkedIn</span>
+
+        {messages.length > 0 && (
+          <div>
+            <h3 className="text-md font-semibold mb-2">Previous Messages</h3>
+            <div className="space-y-2 max-h-40 overflow-auto">
+              {messages.map((msg) => (
+                <div key={msg.id} className="p-2 bg-gray-100 rounded text-sm">
+                  <div className="font-medium">{msg.name} ({msg.email})</div>
+                  <div className="text-gray-600 text-xs">
+                    {new Date(msg.createdAt).toLocaleString()}
+                  </div>
+                  <div className="mt-1">{msg.message}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex items-center cursor-pointer hover:bg-[#D4D0C8]">
-            <img src={codeIcon} alt="GitHub" className="mr-2 h-4 w-4" />
-            <span>GitHub</span>
-          </div>
-          <div className="flex items-center cursor-pointer hover:bg-[#D4D0C8]">
-            <img src={messageIcon} alt="Twitter" className="mr-2 h-4 w-4" />
-            <span>Twitter</span>
-          </div>
-          <div className="flex items-center cursor-pointer hover:bg-[#D4D0C8]">
-            <img src={profileIcon} alt="Portfolio" className="mr-2 h-4 w-4" />
-            <span>Portfolio</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default Contacts;
+}
