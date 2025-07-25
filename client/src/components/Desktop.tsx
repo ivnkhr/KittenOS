@@ -26,12 +26,12 @@ const Desktop = () => {
   const handleDesktopClick = (e: React.MouseEvent) => {
     // Get the targeted element
     const target = e.target as HTMLElement;
-    
+
     // Don't close start menu if clicking on desktop icons
     if (target.closest('.desktop-icon')) {
       return;
     }
-    
+
     // Check if the click is outside the start menu and start button
     if (isStartMenuOpen && !target.closest('#start-menu') && !target.closest('#start-button')) {
       setIsStartMenuOpen(false);
@@ -120,7 +120,7 @@ const Desktop = () => {
           // Determine render type and URL based on window type
           let renderType: 'component' | 'iframe' = 'component';
           let iframeUrl: string | undefined;
-          
+
           if (window.type === 'cv') {
             renderType = 'iframe';
             iframeUrl = 'https://example.com/blog';
@@ -150,7 +150,9 @@ const Desktop = () => {
               onMinimize={() => minimizeWindow(window.id)}
               onMaximize={() => maximizeWindow(window.id)}
               onBringToFront={() => bringToFront(window.id)}
-              onPositionChange={(pos, size, isMax) => handlePositionChange(window.type, pos, size, isMax)}
+              onPositionChange={(position, size, isMaximized) => 
+              handlePositionChange(window.id, position, size, isMaximized)
+            }
               isActive={activeWindowId === window.id}
               renderType={renderType}
               iframeUrl={iframeUrl}

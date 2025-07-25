@@ -96,14 +96,14 @@ export function useWindowManager() {
   });
   
   // Save window position to localStorage
-  const saveWindowPosition = (positionData: { appType: string; x: number; y: number; width: string; height: string; isMaximized: boolean }) => {
+  const saveWindowPosition = (positionData: { windowId: string; appType: string; x: number; y: number; width: string; height: string; isMaximized: boolean }) => {
     try {
-      const existing = savedPositions.find(pos => pos.appType === positionData.appType);
+      const existing = savedPositions.find(pos => pos.windowId === positionData.windowId);
       let updated;
       
       if (existing) {
         updated = savedPositions.map(pos => 
-          pos.appType === positionData.appType ? { ...pos, ...positionData } : pos
+          pos.windowId === positionData.windowId ? { ...pos, ...positionData } : pos
         );
       } else {
         updated = [...savedPositions, { ...positionData, id: Date.now() }];
@@ -117,8 +117,8 @@ export function useWindowManager() {
   };
 
   // Function to get saved position or use default
-  const getWindowPosition = (appType: AppType) => {
-    const savedPosition = savedPositions.find(pos => pos.appType === appType);
+  const getWindowPosition = (windowId: string, appType: AppType) => {
+    const savedPosition = savedPositions.find(pos => pos.windowId === windowId);
     const defaultProps = initialWindowProps[appType];
     
     if (savedPosition) {
@@ -146,19 +146,24 @@ export function useWindowManager() {
   };
 
   // Function to save window position
-  const handlePositionChange = (appType: AppType, position: any, size: any, isMaximized: boolean) => {
+  const handlePositionChange = (windowId: string, position: any, size: any, isMaximized: boolean) => {
+    // Find the window to get its appType
+    const window = windows.find(w => w.id === windowId);
+    if (!window) return;
+    
     // Update window state immediately
     setWindows(prevWindows => 
-      prevWindows.map(window => 
-        window.type === appType 
-          ? { ...window, position, size, isMaximized }
-          : window
+      prevWindows.map(w => 
+        w.id === windowId 
+          ? { ...w, position, size, isMaximized }
+          : w
       )
     );
     
     // Save to localStorage
     saveWindowPosition({
-      appType,
+      windowId,
+      appType: window.type,
       x: position.x,
       y: position.y,
       width: size.width,
@@ -208,11 +213,13 @@ export function useWindowManager() {
       return;
     }
 
-    const { position, size, isMaximized } = getWindowPosition(appType);
+    // Create window ID first
+    const windowId = `${appType}-${Date.now()}`;
+    const { position, size, isMaximized } = getWindowPosition(windowId, appType);
     
     // Create a new window
     const newWindow: WindowState = {
-      id: `${appType}-${Date.now()}`,
+      id: windowId,
       type: appType,
       title: props.title,
       icon: props.icon,
