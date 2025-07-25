@@ -16,6 +16,7 @@ export const projects = pgTable("projects", {
   demoUrl: text("demo_url"),
   sourceUrl: text("source_url"),
   iconType: text("icon_type").notNull(),
+  renderType: text("render_type").notNull().default("component"), // "component" or "iframe"
 });
 
 export const contactMessages = pgTable("contact_messages", {
@@ -25,6 +26,17 @@ export const contactMessages = pgTable("contact_messages", {
   subject: text("subject").notNull(),
   message: text("message").notNull(),
   createdAt: text("created_at").notNull(),
+});
+
+export const windowPositions = pgTable("window_positions", {
+  id: serial("id").primaryKey(),
+  appType: text("app_type").notNull(),
+  x: integer("x").notNull(),
+  y: integer("y").notNull(),
+  width: text("width").notNull(),
+  height: text("height").notNull(),
+  isMaximized: boolean("is_maximized").notNull().default(false),
+  updatedAt: text("updated_at").notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -39,6 +51,7 @@ export const insertProjectSchema = createInsertSchema(projects).pick({
   demoUrl: true,
   sourceUrl: true,
   iconType: true,
+  renderType: true,
 });
 
 export const insertContactMessageSchema = createInsertSchema(contactMessages).pick({
@@ -46,6 +59,15 @@ export const insertContactMessageSchema = createInsertSchema(contactMessages).pi
   email: true,
   subject: true,
   message: true,
+});
+
+export const insertWindowPositionSchema = createInsertSchema(windowPositions).pick({
+  appType: true,
+  x: true,
+  y: true,
+  width: true,
+  height: true,
+  isMaximized: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -56,3 +78,6 @@ export type Project = typeof projects.$inferSelect;
 
 export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 export type ContactMessage = typeof contactMessages.$inferSelect;
+
+export type InsertWindowPosition = z.infer<typeof insertWindowPositionSchema>;
+export type WindowPosition = typeof windowPositions.$inferSelect;

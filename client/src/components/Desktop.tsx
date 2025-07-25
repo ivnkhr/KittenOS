@@ -19,7 +19,7 @@ import recycleIcon from '@/assets/icons/recycle.svg';
 
 const Desktop = () => {
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
-  const { windows, openWindow, closeWindow, minimizeWindow, maximizeWindow, bringToFront, activeWindowId } = useWindowManager();
+  const { windows, openWindow, closeWindow, minimizeWindow, maximizeWindow, bringToFront, activeWindowId, handlePositionChange } = useWindowManager();
 
   // Close start menu when clicking on desktop
   const handleDesktopClick = (e: React.MouseEvent) => {
@@ -65,13 +65,18 @@ const Desktop = () => {
     { id: 'recycle', title: 'Recycle Bin', icon: recycleIcon, appType: 'recycle' as AppType }
   ];
 
+  // Handle project window opening
+  const handleProjectOpen = (projectKey: string, projectUrl: string) => {
+    openWindow(projectKey as AppType, projectUrl);
+  };
+
   // Render app content based on type
   const renderAppContent = (type: AppType) => {
     switch (type) {
       case 'cv':
         return <CV />;
       case 'projects':
-        return <Projects />;
+        return <Projects onProjectOpen={handleProjectOpen} />;
       case 'contacts':
         return <Contacts />;
       case 'computer':
@@ -102,26 +107,49 @@ const Desktop = () => {
 
       {/* Windows */}
       <div className="absolute inset-0 pb-7">
-        {windows.map(window => (
-          <Window
-            key={window.id}
-            id={window.id}
-            title={window.title}
-            icon={window.icon}
-            position={window.position}
-            size={window.size}
-            isMinimized={window.isMinimized}
-            isMaximized={window.isMaximized}
-            zIndex={window.zIndex}
-            onClose={() => closeWindow(window.id)}
-            onMinimize={() => minimizeWindow(window.id)}
-            onMaximize={() => maximizeWindow(window.id)}
-            onBringToFront={() => bringToFront(window.id)}
-            isActive={activeWindowId === window.id}
-          >
-            {renderAppContent(window.type)}
-          </Window>
-        ))}
+        {windows.map(window => {
+          // Determine render type and URL based on window type
+          let renderType: 'component' | 'iframe' = 'component';
+          let iframeUrl: string | undefined;
+          
+          if (window.type === 'cv') {
+            renderType = 'iframe';
+            iframeUrl = 'https://example.com/blog';
+          } else if (window.type.startsWith('project-')) {
+            renderType = 'iframe';
+            // Use project-specific URLs based on the project type
+            const projectUrls = {
+              'project-lesstube': 'https://chrome.google.com/webstore/detail/lesstube',
+              'project-mentalquest': 'https://mentalquest.app',
+              'project-legacyspace': 'https://legacyspace.mobile'
+            };
+            iframeUrl = projectUrls[window.type as keyof typeof projectUrls] || 'https://github.com';
+          }
+
+          return (
+            <Window
+              key={window.id}
+              id={window.id}
+              title={window.title}
+              icon={window.icon}
+              position={window.position}
+              size={window.size}
+              isMinimized={window.isMinimized}
+              isMaximized={window.isMaximized}
+              zIndex={window.zIndex}
+              onClose={() => closeWindow(window.id)}
+              onMinimize={() => minimizeWindow(window.id)}
+              onMaximize={() => maximizeWindow(window.id)}
+              onBringToFront={() => bringToFront(window.id)}
+              onPositionChange={(pos, size, isMax) => handlePositionChange(window.type, pos, size, isMax)}
+              isActive={activeWindowId === window.id}
+              renderType={renderType}
+              iframeUrl={iframeUrl}
+            >
+              {renderType === 'component' ? renderAppContent(window.type) : null}
+            </Window>
+          );
+        })}
       </div>
 
       {/* Start Menu */}

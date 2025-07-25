@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Position, Size } from '@/lib/types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 interface WindowProps {
   id: string;
@@ -15,6 +17,9 @@ interface WindowProps {
   onMinimize: () => void;
   onMaximize: () => void;
   onBringToFront: () => void;
+  onPositionChange?: (position: Position, size: Size, isMaximized: boolean) => void;
+  renderType?: 'component' | 'iframe';
+  iframeUrl?: string;
   children: React.ReactNode;
 }
 
@@ -32,6 +37,9 @@ const Window: React.FC<WindowProps> = ({
   onMinimize,
   onMaximize,
   onBringToFront,
+  onPositionChange,
+  renderType = 'component',
+  iframeUrl,
   children
 }) => {
   const [pos, setPos] = useState<Position>(position);
@@ -42,6 +50,10 @@ const Window: React.FC<WindowProps> = ({
   const [windowSize, setWindowSize] = useState<Size>(size);
   const [originalSize, setOriginalSize] = useState<Size>(size);
   const [originalPos, setOriginalPos] = useState<Position>(position);
+  
+  const queryClient = useQueryClient();
+  
+  // Save window position mutation (removed as it's handled by parent component)
 
   // Update position when position prop changes (for window management)
   useEffect(() => {
@@ -115,6 +127,9 @@ const Window: React.FC<WindowProps> = ({
     };
     
     const handleMouseUp = () => {
+      if (dragging && onPositionChange) {
+        onPositionChange(pos, windowSize, isMaximized);
+      }
       setDragging(false);
     };
     
@@ -195,8 +210,20 @@ const Window: React.FC<WindowProps> = ({
       </div>
       
       {/* Content */}
-      <div className="window-content h-[calc(100%-42px)] p-2 bg-white border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] overflow-y-auto">
-        {children}
+      <div className="window-content h-[calc(100%-42px)] bg-white border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] overflow-y-auto">
+        {renderType === 'iframe' && iframeUrl ? (
+          <iframe
+            src={iframeUrl}
+            className="w-full h-full border-0"
+            title={title}
+            allow="autoplay; encrypted-media; fullscreen"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+          />
+        ) : (
+          <div className="p-2">
+            {children}
+          </div>
+        )}
       </div>
     </div>
   );

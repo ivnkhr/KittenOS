@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { WindowState, AppType } from '@/lib/types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import type { WindowPosition } from '@shared/schema';
 
 // Import icons for windows
 import cvIcon from '@/assets/icons/notepad.svg';
@@ -11,34 +14,65 @@ import recycleIcon from '@/assets/icons/recycle.svg';
 // Window initial properties map
 const initialWindowProps = {
   cv: {
-    title: 'CV - Notepad',
+    title: 'Blog Page Browser',
     icon: cvIcon,
     position: { x: 150, y: 50 },
-    size: { width: '500px', height: '400px' }
+    size: { width: '800px', height: '600px' },
+    renderType: 'iframe' as const,
+    iframeUrl: 'https://example.com/blog'
   },
   projects: {
     title: 'Projects',
     icon: projectsIcon,
     position: { x: 200, y: 100 },
-    size: { width: '550px', height: '450px' }
+    size: { width: '550px', height: '450px' },
+    renderType: 'component' as const
   },
   contacts: {
     title: 'Contact Me',
     icon: contactsIcon,
     position: { x: 250, y: 150 },
-    size: { width: '450px', height: '400px' }
+    size: { width: '450px', height: '400px' },
+    renderType: 'component' as const
   },
   computer: {
     title: 'My Computer',
     icon: computerIcon,
     position: { x: 180, y: 120 },
-    size: { width: '500px', height: '350px' }
+    size: { width: '500px', height: '350px' },
+    renderType: 'component' as const
   },
   recycle: {
     title: 'Recycle Bin',
     icon: recycleIcon,
     position: { x: 220, y: 140 },
-    size: { width: '400px', height: '300px' }
+    size: { width: '400px', height: '300px' },
+    renderType: 'component' as const
+  },
+  // Project-specific windows
+  'project-lesstube': {
+    title: 'LessTube',
+    icon: cvIcon,
+    position: { x: 300, y: 100 },
+    size: { width: '800px', height: '600px' },
+    renderType: 'iframe' as const,
+    iframeUrl: 'https://chrome.google.com/webstore/detail/lesstube'
+  },
+  'project-mentalquest': {
+    title: 'MentalQuest',
+    icon: cvIcon,
+    position: { x: 350, y: 150 },
+    size: { width: '800px', height: '600px' },
+    renderType: 'iframe' as const,
+    iframeUrl: 'https://mentalquest.app'
+  },
+  'project-legacyspace': {
+    title: 'LegacySPACE.mobile',
+    icon: cvIcon,
+    position: { x: 400, y: 200 },
+    size: { width: '800px', height: '600px' },
+    renderType: 'iframe' as const,
+    iframeUrl: 'https://legacyspace.mobile'
   }
 };
 
@@ -46,9 +80,64 @@ export function useWindowManager() {
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const [zIndex, setZIndex] = useState(10);
+  
+  const queryClient = useQueryClient();
+  
+  // Fetch saved window positions
+  const { data: savedPositions } = useQuery({
+    queryKey: ['/api/window-positions'],
+    queryFn: ({ queryKey }) => fetch(queryKey[0]).then(res => res.json()),
+  });
+  
+  // Save window position mutation
+  const savePositionMutation = useMutation({
+    mutationFn: (positionData: { appType: string; x: number; y: number; width: string; height: string; isMaximized: boolean }) =>
+      fetch('/api/window-positions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(positionData),
+      }).then(res => res.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/window-positions'] });
+    },
+  });
+
+  // Function to get saved position or use default
+  const getWindowPosition = (appType: AppType) => {
+    const savedPosition = Array.isArray(savedPositions) ? 
+      savedPositions.find((pos: WindowPosition) => pos.appType === appType) : 
+      null;
+    const defaultProps = initialWindowProps[appType];
+    
+    if (savedPosition) {
+      return {
+        position: { x: savedPosition.x, y: savedPosition.y },
+        size: { width: savedPosition.width, height: savedPosition.height },
+        isMaximized: savedPosition.isMaximized
+      };
+    }
+    
+    return {
+      position: defaultProps.position,
+      size: defaultProps.size,
+      isMaximized: false
+    };
+  };
+
+  // Function to save window position
+  const handlePositionChange = (appType: AppType, position: any, size: any, isMaximized: boolean) => {
+    savePositionMutation.mutate({
+      appType,
+      x: position.x,
+      y: position.y,
+      width: size.width,
+      height: size.height,
+      isMaximized
+    });
+  };
 
   // Open a window
-  const openWindow = (appType: AppType) => {
+  const openWindow = (appType: AppType, iframeUrl?: string) => {
     const existingWindow = windows.find(window => window.type === appType);
     
     if (existingWindow) {
@@ -67,7 +156,28 @@ export function useWindowManager() {
     }
     
     // Get initial properties for the window type
-    const props = initialWindowProps[appType];
+    let props = initialWindowProps[appType];
+    
+    // Handle dynamic project windows
+    if (!props && appType.startsWith('project-')) {
+      props = {
+        title: appType.split('-').slice(1).map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' '),
+        icon: computerIcon,
+        position: { x: 300 + Math.random() * 100, y: 100 + Math.random() * 100 },
+        size: { width: '800px', height: '600px' },
+        renderType: 'iframe' as const,
+        iframeUrl: iframeUrl || 'about:blank'
+      };
+    }
+    
+    if (!props) {
+      console.error(`No props found for app type: ${appType}`);
+      return;
+    }
+
+    const { position, size, isMaximized } = getWindowPosition(appType);
     
     // Create a new window
     const newWindow: WindowState = {
@@ -75,10 +185,10 @@ export function useWindowManager() {
       type: appType,
       title: props.title,
       icon: props.icon,
-      position: props.position,
-      size: props.size,
+      position: position,
+      size: size,
       isMinimized: false,
-      isMaximized: false,
+      isMaximized: isMaximized,
       zIndex: zIndex
     };
     
@@ -171,6 +281,7 @@ export function useWindowManager() {
     closeWindow,
     minimizeWindow,
     maximizeWindow,
-    bringToFront
+    bringToFront,
+    handlePositionChange
   };
 }

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertContactMessageSchema, insertProjectSchema } from "@shared/schema";
+import { insertContactMessageSchema, insertProjectSchema, insertWindowPositionSchema } from "@shared/schema";
 import { ZodError } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -74,6 +74,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(messages);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch contact messages" });
+    }
+  });
+
+  // Window position routes
+  app.get("/api/window-positions/:appType", async (req, res) => {
+    try {
+      const { appType } = req.params;
+      const position = await storage.getWindowPosition(appType);
+      res.json(position || null);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch window position" });
+    }
+  });
+
+  app.post("/api/window-positions", async (req, res) => {
+    try {
+      const validatedData = insertWindowPositionSchema.parse(req.body);
+      const position = await storage.saveWindowPosition({
+        ...validatedData,
+        updatedAt: new Date().toISOString(),
+      });
+      res.json(position);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        res.status(400).json({ message: "Invalid window position data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to save window position" });
+      }
+    }
+  });
+
+  app.get("/api/window-positions", async (req, res) => {
+    try {
+      const positions = await storage.getAllWindowPositions();
+      res.json(positions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch window positions" });
     }
   });
 
