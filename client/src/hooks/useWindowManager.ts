@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
 import { WindowState, AppType } from '@/lib/types';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import type { WindowPosition } from '@shared/schema';
 
 // Import icons for windows
 import cvIcon from '@/assets/icons/notepad.svg';
@@ -73,6 +70,13 @@ const initialWindowProps = {
     size: { width: '800px', height: '600px' },
     renderType: 'iframe' as const,
     iframeUrl: 'https://legacyspace.mobile'
+  },
+  winamp: {
+    title: 'Winamp',
+    icon: computerIcon,
+    position: { x: 300, y: 200 },
+    size: { width: '400px', height: '300px' },
+    renderType: 'component' as const
   }
 };
 
@@ -81,32 +85,40 @@ export function useWindowManager() {
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const [zIndex, setZIndex] = useState(10);
   
-  const queryClient = useQueryClient();
-  
-  // Fetch saved window positions
-  const { data: savedPositions } = useQuery({
-    queryKey: ['/api/window-positions'],
-    queryFn: ({ queryKey }) => fetch(queryKey[0]).then(res => res.json()),
+  // Load window positions from localStorage
+  const [savedPositions, setSavedPositions] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem('windowPositions');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
   
-  // Save window position mutation
-  const savePositionMutation = useMutation({
-    mutationFn: (positionData: { appType: string; x: number; y: number; width: string; height: string; isMaximized: boolean }) =>
-      fetch('/api/window-positions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(positionData),
-      }).then(res => res.json()),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/window-positions'] });
-    },
-  });
+  // Save window position to localStorage
+  const saveWindowPosition = (positionData: { appType: string; x: number; y: number; width: string; height: string; isMaximized: boolean }) => {
+    try {
+      const existing = savedPositions.find(pos => pos.appType === positionData.appType);
+      let updated;
+      
+      if (existing) {
+        updated = savedPositions.map(pos => 
+          pos.appType === positionData.appType ? { ...pos, ...positionData } : pos
+        );
+      } else {
+        updated = [...savedPositions, { ...positionData, id: Date.now() }];
+      }
+      
+      setSavedPositions(updated);
+      localStorage.setItem('windowPositions', JSON.stringify(updated));
+    } catch (error) {
+      console.error('Failed to save window position:', error);
+    }
+  };
 
   // Function to get saved position or use default
   const getWindowPosition = (appType: AppType) => {
-    const savedPosition = Array.isArray(savedPositions) ? 
-      savedPositions.find((pos: WindowPosition) => pos.appType === appType) : 
-      null;
+    const savedPosition = savedPositions.find(pos => pos.appType === appType);
     const defaultProps = initialWindowProps[appType];
     
     if (savedPosition) {
@@ -117,16 +129,25 @@ export function useWindowManager() {
       };
     }
     
+    if (defaultProps) {
+      return {
+        position: defaultProps.position,
+        size: defaultProps.size,
+        isMaximized: false
+      };
+    }
+    
+    // Fallback for dynamic windows
     return {
-      position: defaultProps.position,
-      size: defaultProps.size,
+      position: { x: 300 + Math.random() * 100, y: 100 + Math.random() * 100 },
+      size: { width: '800px', height: '600px' },
       isMaximized: false
     };
   };
 
   // Function to save window position
   const handlePositionChange = (appType: AppType, position: any, size: any, isMaximized: boolean) => {
-    savePositionMutation.mutate({
+    saveWindowPosition({
       appType,
       x: position.x,
       y: position.y,

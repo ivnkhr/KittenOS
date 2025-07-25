@@ -1,4 +1,4 @@
-export type AppType = 'cv' | 'projects' | 'contacts' | 'computer' | 'recycle';
+export type AppType = 'cv' | 'projects' | 'contacts' | 'computer' | 'recycle' | 'winamp' | 'project-lesstube' | 'project-mentalquest' | 'project-legacyspace';
 
 export interface Position {
   x: number;

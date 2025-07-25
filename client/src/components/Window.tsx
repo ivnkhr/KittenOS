@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Position, Size } from '@/lib/types';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
 
 interface WindowProps {
   id: string;
@@ -45,13 +43,13 @@ const Window: React.FC<WindowProps> = ({
   const [pos, setPos] = useState<Position>(position);
   const [dragging, setDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [currentUrl, setCurrentUrl] = useState(iframeUrl || '');
+  const [urlInputValue, setUrlInputValue] = useState(iframeUrl || '');
   const windowRef = useRef<HTMLDivElement>(null);
   
   const [windowSize, setWindowSize] = useState<Size>(size);
   const [originalSize, setOriginalSize] = useState<Size>(size);
   const [originalPos, setOriginalPos] = useState<Position>(position);
-  
-  const queryClient = useQueryClient();
   
   // Save window position mutation (removed as it's handled by parent component)
 
@@ -61,6 +59,14 @@ const Window: React.FC<WindowProps> = ({
       setPos(position);
     }
   }, [position, dragging]);
+
+  // Update URL states when iframeUrl prop changes
+  useEffect(() => {
+    if (iframeUrl) {
+      setCurrentUrl(iframeUrl);
+      setUrlInputValue(iframeUrl);
+    }
+  }, [iframeUrl]);
 
   // Update size when maximized state changes
   useEffect(() => {
@@ -149,6 +155,19 @@ const Window: React.FC<WindowProps> = ({
     onBringToFront();
   };
 
+  // Handle URL navigation
+  const handleGoClick = () => {
+    if (urlInputValue.trim()) {
+      window.open(urlInputValue.trim(), '_blank');
+    }
+  };
+
+  const handleUrlInputKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleGoClick();
+    }
+  };
+
   if (isMinimized) {
     return null;
   }
@@ -209,11 +228,32 @@ const Window: React.FC<WindowProps> = ({
         <div className="px-2 py-1 text-xs hover:bg-[#000080] hover:text-white cursor-pointer">Help</div>
       </div>
       
+      {/* URL Toolbar for iframe windows */}
+      {renderType === 'iframe' && (
+        <div className="window-toolbar flex items-center bg-[#C0C0C0] px-2 py-1 border-b border-[#808080] gap-2">
+          <span className="text-xs text-black">Address:</span>
+          <input
+            type="text"
+            value={urlInputValue}
+            onChange={(e) => setUrlInputValue(e.target.value)}
+            onKeyPress={handleUrlInputKeyPress}
+            className="flex-1 px-1 py-0.5 text-xs border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] bg-white text-black"
+            placeholder="Enter URL..."
+          />
+          <button
+            onClick={handleGoClick}
+            className="px-2 py-0.5 text-xs bg-[#C0C0C0] border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] hover:bg-[#E0E0E0] active:border-[#808080] active:border-r-[#FFFFFF] active:border-b-[#FFFFFF]"
+          >
+            Go
+          </button>
+        </div>
+      )}
+      
       {/* Content */}
-      <div className="window-content h-[calc(100%-42px)] bg-white border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] overflow-y-auto">
-        {renderType === 'iframe' && iframeUrl ? (
+      <div className={`window-content ${renderType === 'iframe' ? 'h-[calc(100%-70px)]' : 'h-[calc(100%-42px)]'} bg-white border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] overflow-y-auto`}>
+        {renderType === 'iframe' && currentUrl ? (
           <iframe
-            src={iframeUrl}
+            src={currentUrl}
             className="w-full h-full border-0"
             title={title}
             allow="autoplay; encrypted-media; fullscreen"

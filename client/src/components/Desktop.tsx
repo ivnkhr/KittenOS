@@ -7,6 +7,7 @@ import CV from './apps/CV';
 import Projects from './apps/Projects';
 import Contacts from './apps/Contacts';
 import MyComputer from './apps/MyComputer';
+import Winamp from './apps/Winamp';
 import { useWindowManager } from '@/hooks/useWindowManager';
 import { AppType } from '@/lib/types';
 
@@ -61,6 +62,7 @@ const Desktop = () => {
     { id: 'cv', title: 'My CV', icon: cvIcon, appType: 'cv' as AppType },
     { id: 'projects', title: 'Projects', icon: projectsIcon, appType: 'projects' as AppType },
     { id: 'contacts', title: 'Contacts', icon: contactsIcon, appType: 'contacts' as AppType },
+    { id: 'winamp', title: 'Winamp', icon: computerIcon, appType: 'winamp' as AppType },
     { id: 'computer', title: 'My Computer', icon: computerIcon, appType: 'computer' as AppType },
     { id: 'recycle', title: 'Recycle Bin', icon: recycleIcon, appType: 'recycle' as AppType }
   ];
@@ -79,6 +81,8 @@ const Desktop = () => {
         return <Projects onProjectOpen={handleProjectOpen} />;
       case 'contacts':
         return <Contacts />;
+      case 'winamp':
+        return <Winamp />;
       case 'computer':
         return <MyComputer />;
       case 'recycle':
