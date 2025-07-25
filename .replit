@@ -42,21 +42,3 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Client-only Development"
-author = 42662680
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd client && npm run dev"
-
-[[workflows.workflow]]
-name = "Client Development"
-author = 42662680
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
