@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "cd client && vite dev --host 0.0.0.0 --port 5000 --allowedHosts=all",
+    "dev": "cd client && vite dev --host 0.0.0.0 --port 5000",
     "build": "cd client && vite build",
     "start": "cd client && vite preview --host 0.0.0.0 --port 5000",
     "check": "tsc"
