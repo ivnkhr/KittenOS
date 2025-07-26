@@ -24,7 +24,7 @@ export default defineConfig({
       port: 5000,
       host: "0.0.0.0",
     },
-    allowedHosts: "all",
+    allowedHosts: ["replit.dev"],
     origin: "http://localhost:5000",
   },
   resolve: {
