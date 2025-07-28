@@ -42,10 +42,23 @@ const Window: React.FC<WindowProps> = ({
 }) => {
   const [pos, setPos] = useState<Position>(position);
   const [dragging, setDragging] = useState(false);
+  const [resizing, setResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [currentUrl, setCurrentUrl] = useState(iframeUrl || '');
   const [urlInputValue, setUrlInputValue] = useState(iframeUrl || '');
   const windowRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const playSound = () => {
+    const audio = new Audio('/src/assets/sounds/close.mp3');
+    audio.play();
+  };
+
+  useEffect(() => {
+    // Play the sound on component mount
+    const audio = new Audio('/src/assets/sounds/click.mp3');
+    audio.play();
+  }, []);
   
   const [windowSize, setWindowSize] = useState<Size>(size);
   const [originalSize, setOriginalSize] = useState<Size>(size);
@@ -53,13 +66,7 @@ const Window: React.FC<WindowProps> = ({
   
   // Save window position mutation (removed as it's handled by parent component)
 
-  // Update position when position prop changes (for window management)
-  // Only update if we're not currently dragging and the position has actually changed
-  useEffect(() => {
-    if (!dragging && (position.x !== pos.x || position.y !== pos.y)) {
-      setPos(position);
-    }
-  }, [position.x, position.y, dragging]);
+  
 
   // Update URL states when iframeUrl prop changes
   useEffect(() => {
@@ -77,7 +84,7 @@ const Window: React.FC<WindowProps> = ({
       setOriginalPos(pos);
       
       // Maximize
-      setWindowSize({ width: '100%', height: 'calc(100% - 28px)' });
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight - 28 });
       setPos({ x: 0, y: 0 });
     } else {
       // Restore original size and position
@@ -102,6 +109,16 @@ const Window: React.FC<WindowProps> = ({
       });
     }
     
+    // Prevent text selection during drag
+    e.preventDefault();
+  };
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    if (isMaximized) return;
+
+    onBringToFront();
+    setResizing(true);
+
     // Prevent text selection during drag
     e.preventDefault();
   };
@@ -136,11 +153,8 @@ const Window: React.FC<WindowProps> = ({
     const handleMouseUp = () => {
       if (dragging) {
         setDragging(false);
-        // Save position after a short delay to ensure state is updated
         if (onPositionChange) {
-          setTimeout(() => {
-            onPositionChange(pos, windowSize, isMaximized);
-          }, 0);
+          onPositionChange(pos, windowSize, isMaximized);
         }
       }
     };
@@ -155,6 +169,40 @@ const Window: React.FC<WindowProps> = ({
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [dragging, dragOffset]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (resizing) {
+        const newWidth = e.clientX - pos.x;
+        const newHeight = e.clientY - pos.y;
+        setWindowSize({
+          width: Math.max(200, newWidth),
+          height: Math.max(150, newHeight),
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (resizing) {
+        setResizing(false);
+        if (onPositionChange) {
+          setTimeout(() => {
+            onPositionChange(pos, windowSize, isMaximized);
+          }, 0);
+        }
+      }
+    };
+
+    if (resizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [resizing, pos, windowSize, onPositionChange, isMaximized]);
   
   // Bring window to front when clicked
   const handleWindowClick = () => {
@@ -203,13 +251,13 @@ const Window: React.FC<WindowProps> = ({
         <div className="flex">
           <button 
             className="window-button w-4 h-3.5 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] mr-1 flex items-center justify-center"
-            onClick={onMinimize}
+            onClick={() => { onMinimize(); playSound(); }}
           >
-            <div className="w-2 h-0.5 bg-black -mt-1"></div>
+            <div className="w-2 h-0.5 bg-black -mt-1">_</div>
           </button>
           <button 
             className="window-button w-4 h-3.5 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] mr-1 flex items-center justify-center"
-            onClick={onMaximize}
+            onClick={() => { onMaximize(); playSound(); }}
           >
             {isMaximized ? (
               <div className="w-2 h-2 border border-black bg-[#C0C0C0] -mt-0.5"></div>
@@ -219,12 +267,13 @@ const Window: React.FC<WindowProps> = ({
           </button>
           <button 
             className="window-button window-button-close w-4 h-3.5 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] flex items-center justify-center text-xs"
-            onClick={onClose}
+            onClick={() => { onClose(); playSound(); }}
           >
-            ×
+            X
           </button>
         </div>
       </div>
+      
       
       {/* Menu */}
       <div className="window-menu flex bg-[#C0C0C0] text-black border-b border-[#808080]">
@@ -255,6 +304,9 @@ const Window: React.FC<WindowProps> = ({
         </div>
       )}
       
+      { renderType }
+      { iframeUrl }
+
       {/* Content */}
       <div className={`window-content ${renderType === 'iframe' ? 'h-[calc(100%-70px)]' : 'h-[calc(100%-42px)]'} bg-white border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] overflow-y-auto`}>
         {renderType === 'iframe' && currentUrl ? (
@@ -266,11 +318,15 @@ const Window: React.FC<WindowProps> = ({
             sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
           />
         ) : (
-          <div className="p-2">
+          <div>
             {children}
           </div>
         )}
       </div>
+      <div
+        className="resize-handle absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
+        onMouseDown={handleResizeMouseDown}
+      />
     </div>
   );
 };

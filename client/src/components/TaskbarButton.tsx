@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface TaskbarButtonProps {
   title: string;
@@ -15,7 +15,7 @@ const TaskbarButton: React.FC<TaskbarButtonProps> = ({ title, icon, isActive, on
   return (
     <button 
       className={`h-5 px-2 mx-1 flex items-center truncate min-w-[80px] max-w-[150px] ${borderClasses}`}
-      onClick={onClick}
+      onClick={() => { onClick(); }}
     >
       <img src={icon} alt={title} className="mr-1 h-4 w-4" />
       <span className="truncate text-xs">{title}</span>

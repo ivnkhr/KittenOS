@@ -16,8 +16,8 @@ export interface Position {
 }
 
 export interface Size {
-  width: string;
-  height: string;
+  width: number;
+  height: number;
 }
 
 export interface WindowState {
@@ -30,6 +30,9 @@ export interface WindowState {
   isMinimized: boolean;
   isMaximized: boolean;
   zIndex: number;
+  renderType?: RenderType;
+  currentUrl?: string;
+  content?: React.ReactNode; // Add content property
 }
 
 export interface Project {
@@ -39,8 +42,7 @@ export interface Project {
   technologies: string;
   demoUrl: string;
   sourceUrl: string;
-  iconType: string;
-  renderType: RenderType;
+
 }
 
 export interface ContactMessage {
@@ -55,8 +57,8 @@ export interface StoredWindowPosition {
   appType: string;
   x: number;
   y: number;
-  width: string;
-  height: string;
+  width: number;
+  height: number;
   isMaximized: boolean;
   isMinimized: boolean;
   isOpen: boolean;

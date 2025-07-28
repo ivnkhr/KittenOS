@@ -12,72 +12,63 @@ import recycleIcon from '../assets/icons/recycle.svg';
 // Window initial properties map
 const initialWindowProps = {
   cv: {
-    title: 'Blog Page Browser',
+    title: 'Blog Page Browser W',
     icon: cvIcon,
-    position: { x: 150, y: 50 },
-    size: { width: '800px', height: '600px' },
-    renderType: 'iframe' as const,
-    iframeUrl: 'https://example.com/blog'
+    position: { x: 10, y: 0 },
+    size: { width: 600, height: 600 },
+    rt: 'iframe' as any,
+    iframeUrl: 'https://ivnkhr.com'
   },
   projects: {
     title: 'Projects',
     icon: projectsIcon,
     position: { x: 200, y: 100 },
-    size: { width: '550px', height: '450px' },
-    renderType: 'component' as const
+    size: { width: 550, height: 450 },
   },
   contacts: {
     title: 'Contact Me',
     icon: contactsIcon,
     position: { x: 250, y: 150 },
-    size: { width: '450px', height: '400px' },
-    renderType: 'component' as const
+    size: { width: 400, height: 300 },
   },
   computer: {
     title: 'My Computer',
     icon: computerIcon,
     position: { x: 180, y: 120 },
-    size: { width: '500px', height: '350px' },
-    renderType: 'component' as const
+    size: { width: 400, height: 300 },
   },
   recycle: {
     title: 'Recycle Bin',
     icon: recycleIcon,
     position: { x: 220, y: 140 },
-    size: { width: '400px', height: '300px' },
-    renderType: 'component' as const
+    size: { width: 400, height: 300 },
   },
   // Project-specific windows
   'project-lesstube': {
     title: 'LessTube',
     icon: cvIcon,
     position: { x: 300, y: 100 },
-    size: { width: '800px', height: '600px' },
-    renderType: 'iframe' as const,
-    iframeUrl: 'https://chrome.google.com/webstore/detail/lesstube'
+    size: { width: 400, height: 300 },
+    rt: 'iframe' as any,
+    url: 'https://ivnkhr.com'
   },
   'project-mentalquest': {
     title: 'MentalQuest',
     icon: cvIcon,
     position: { x: 350, y: 150 },
-    size: { width: '800px', height: '600px' },
-    renderType: 'iframe' as const,
-    iframeUrl: 'https://mentalquest.app'
+    size: { width: 400, height: 300 },
   },
   'project-legacyspace': {
     title: 'LegacySPACE.mobile',
     icon: cvIcon,
     position: { x: 400, y: 200 },
-    size: { width: '800px', height: '600px' },
-    renderType: 'iframe' as const,
-    iframeUrl: 'https://legacyspace.mobile'
+    size: { width: 400, height: 300 },
   },
   winamp: {
     title: 'Winamp',
     icon: computerIcon,
     position: { x: 150, y: 150 },
-    size: { width: '400px', height: '300px' },
-    renderType: 'component' as const
+    size: { width: 400, height: 300 },
   }
 };
 
@@ -100,6 +91,7 @@ export function useWindowManager() {
         positions.forEach(pos => {
           if (pos.isOpen) {
             const props = initialWindowProps[pos.appType as keyof typeof initialWindowProps];
+            console.log('props', props);
             if (props) {
               const windowState: WindowState = {
                 id: pos.windowId,
@@ -110,7 +102,9 @@ export function useWindowManager() {
                 size: { width: pos.width, height: pos.height },
                 isMinimized: pos.isMinimized,
                 isMaximized: pos.isMaximized,
-                zIndex: maxZIndex++
+                zIndex: maxZIndex++,
+                renderType: props.rt,
+                iframeUrl: props.iframeUrl
               };
               restoredWindows.push(windowState);
             }
@@ -128,6 +122,7 @@ export function useWindowManager() {
           setActiveWindowId(highestZWindow.id);
         }
       }
+
     } catch (error) {
       console.error('Failed to restore window states:', error);
     }
@@ -203,14 +198,14 @@ export function useWindowManager() {
       // Fallback for dynamic windows
       return {
         position: { x: 300 + Math.random() * 100, y: 100 + Math.random() * 100 },
-        size: { width: '800px', height: '600px' },
+        size: { width: 800, height: 600 },
         isMaximized: false,
         isMinimized: false
       };
     } catch {
       return {
         position: { x: 300, y: 100 },
-        size: { width: '800px', height: '600px' },
+        size: { width: 800, height: 600 },
         isMaximized: false,
         isMinimized: false
       };
@@ -259,12 +254,12 @@ export function useWindowManager() {
       props = {
         title: appType.split('-').slice(1).map(word => 
           word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' '),
+        ).join('-'),
         icon: computerIcon,
         position: { x: 300 + Math.random() * 100, y: 100 + Math.random() * 100 },
-        size: { width: '800px', height: '600px' },
-        renderType: 'iframe' as const,
-        iframeUrl: iframeUrl || 'about:blank'
+        size: { width: 800, height: 600 },
+        rt: 'iframe' as const,
+        url: iframeUrl || 'about:blank'
       };
     }
     
@@ -274,7 +269,7 @@ export function useWindowManager() {
     }
 
     // Create window ID first
-    const windowId = `${appType}-${Date.now()}`;
+    const windowId = `${appType}`;
     const { position, size, isMaximized, isMinimized } = getWindowPosition(windowId, appType);
     
     // Create a new window

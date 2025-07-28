@@ -1,3 +1,4 @@
+import React, {useEffect} from "react";
 import { useWindowManager } from '../hooks/useWindowManager';
 import Window from './Window';
 import Taskbar from './Taskbar';
@@ -38,15 +39,37 @@ export default function Desktop({ projects }: DesktopProps) {
 
   const [showStartMenu, setShowStartMenu] = useState(false);
 
+  const playSound = () => {
+    const audio = new Audio('/src/assets/sounds/close.mp3');
+    audio.play();
+  };
+
+  useEffect(() => {
+    const handleMouseDown = (event: MouseEvent) => {
+      const startMenu = document.getElementById('start-menu');
+      const startButton = document.getElementById('start-button');
+
+      if (startMenu && !startMenu.contains(event.target as Node) &&
+          startButton && !startButton.contains(event.target as Node)) {
+        setShowStartMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, []);
+
   const handleOpenProject = (project: Project) => {
     const appType = `project-${project.title.toLowerCase().replace(/\s+/g, '')}` as any;
     openWindow(appType, project.demoUrl);
   };
 
   const renderWindowContent = (window: any) => {
+    console.log(window);
     switch (window.type) {
-      case 'cv':
-        return <CV />;
       case 'projects':
         return <Projects projects={projects} onOpenProject={handleOpenProject} />;
       case 'contacts':
@@ -54,28 +77,23 @@ export default function Desktop({ projects }: DesktopProps) {
       case 'computer':
         return <MyComputer />;
       case 'winamp':
-        return <Winamp />;
+        return (<Winamp />);
       case 'recycle':
         return <div className="p-4"><h2>Recycle Bin</h2><p>No items in recycle bin.</p></div>;
       default:
-        if (window.type.startsWith('project-')) {
-          const project = projects.find(p => 
-            `project-${p.title.toLowerCase().replace(/\s+/g, '')}` === window.type
-          );
-          return (
-            <iframe
-              src={project?.demoUrl || 'about:blank'}
-              className="w-full h-full border-0"
-              title={window.title}
-            />
-          );
-        }
         return <div className="p-4">Unknown application type: {window.type}</div>;
     }
   };
 
   return (
-    <div className="h-full w-full relative bg-[#008080] overflow-hidden">
+    <div 
+      className="h-full w-full relative overflow-hidden"
+      style={{
+        backgroundImage: `url('/src/assets/wallpaper-cat.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
       {/* Desktop Icons */}
       <div className="absolute top-4 left-4 flex flex-col gap-4">
         <DesktopIcon
@@ -103,6 +121,19 @@ export default function Desktop({ projects }: DesktopProps) {
           label="Recycle Bin"
           onDoubleClick={() => openWindow('recycle')}
         />
+        <DesktopIcon
+          icon={computerIcon}
+          label="Winamp"
+          onDoubleClick={() => openWindow('winamp')}
+        />
+        <DesktopIcon
+          icon={computerIcon}
+          label="X"
+          onDoubleClick={() => {
+            window.open('https://x.com', '_blank');
+          }}
+        />
+          
       </div>
 
       {/* Windows */}
@@ -117,6 +148,7 @@ export default function Desktop({ projects }: DesktopProps) {
           isMinimized={window.isMinimized}
           isMaximized={window.isMaximized}
           zIndex={window.zIndex}
+          renderType={window.renderType}
           isActive={activeWindowId === window.id}
           onClose={() => closeWindow(window.id)}
           onMinimize={() => minimizeWindow(window.id)}
@@ -153,7 +185,8 @@ export default function Desktop({ projects }: DesktopProps) {
             bringToFront(id);
           }
         }}
-        onStartClick={() => setShowStartMenu(!showStartMenu)}
+        onStartClick={() => { setShowStartMenu(!showStartMenu); playSound(); }}
+        isStartMenuOpen={showStartMenu}
       />
     </div>
   );

@@ -1,3 +1,4 @@
+import React from "react";
 import { Project } from '../../lib/types';
 
 interface ProjectsProps {

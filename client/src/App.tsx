@@ -1,4 +1,4 @@
-
+import React from "react";
 import { useState, useEffect } from 'react';
 import Desktop from './components/Desktop';
 import { Project } from './lib/types';
@@ -12,8 +12,6 @@ const staticProjects: Project[] = [
     technologies: "Gatsby, React, GraphQL",
     demoUrl: "https://ivnkhr.com",
     sourceUrl: "https://github.com/example/blog",
-    iconType: "notepad",
-    renderType: "iframe"
   },
   {
     id: 2,
@@ -22,8 +20,6 @@ const staticProjects: Project[] = [
     technologies: "JavaScript, Chrome Extension API",
     demoUrl: "https://chrome.google.com/webstore/detail/lesstube",
     sourceUrl: "https://github.com/example/lesstube",
-    iconType: "globe",
-    renderType: "iframe"
   },
   {
     id: 3,
@@ -32,8 +28,6 @@ const staticProjects: Project[] = [
     technologies: "React Native, Node.js, PostgreSQL",
     demoUrl: "https://mentalquest.app",
     sourceUrl: "https://github.com/example/mentalquest",
-    iconType: "profile",
-    renderType: "iframe"
   },
   {
     id: 4,
@@ -42,8 +36,6 @@ const staticProjects: Project[] = [
     technologies: "Flutter, Firebase, Cloud Functions",
     demoUrl: "https://legacyspace.mobile",
     sourceUrl: "https://github.com/example/legacyspace-mobile",
-    iconType: "computer",
-    renderType: "iframe"
   }
 ];
 

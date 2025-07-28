@@ -2,20 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'MS Sans Serif';
-  src: url('https://unpkg.com/win95.css@0.1.0/assets/ms_sans_serif.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'MS Sans Serif';
-  src: url('https://unpkg.com/win95.css@0.1.0/assets/ms_sans_serif_bold.woff') format('woff');
-  font-weight: bold;
-  font-style: normal;
-}
-
 :root {
   --background: 0 0% 100%;
   --foreground: 20 14.3% 4.1%;
@@ -39,32 +25,9 @@
   --radius: 0.5rem;
 }
 
-.dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --primary: 207 90% 54%;
-  --primary-foreground: 211 100% 99%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --ring: 240 4.9% 83.9%;
-  --radius: 0.5rem;
-}
-
 @layer base {
   body {
-    font-family: 'MS Sans Serif', Arial, sans-serif;
+    font-family: "DM Sans", sans-serif;
     font-size: 11px;
     overflow: hidden;
     image-rendering: pixelated;
@@ -87,6 +50,16 @@
   border-style: solid;
   border-width: 2px;
   border-color: #808080 #FFFFFF #FFFFFF #808080;
+}
+
+.desktop-icon .text-white{
+  padding: 2px;
+}
+.desktop-icon:hover .text-white{
+  background-color: blue;
+}
+#start-menu{
+  z-index: 777;
 }
 
 /* Scrollbar styling to match Windows 95 */

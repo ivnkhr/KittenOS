@@ -3,20 +3,22 @@ import TaskbarButton from './TaskbarButton';
 import { WindowState } from '../lib/types';
 
 // Import SVG icons
-import startIcon from '../assets/icons/start.svg';
+import startIcon from '../assets/os.png';
 
 interface TaskbarProps {
   windows: WindowState[];
   activeWindowId: string | null;
   onWindowClick: (id: string) => void;
   onStartClick: () => void;
+  isStartMenuOpen: boolean;
 }
 
 const Taskbar: React.FC<TaskbarProps> = ({ 
   windows, 
   activeWindowId,
   onWindowClick,
-  onStartClick
+  onStartClick,
+  isStartMenuOpen
 }) => {
   const [time, setTime] = useState<string>(getCurrentTime());
 
@@ -43,7 +45,7 @@ const Taskbar: React.FC<TaskbarProps> = ({
       {/* Start Button */}
       <button 
         id="start-button"
-        className="h-5 px-2 mx-1 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] flex items-center"
+        className={`h-5 px-2 mx-1 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] flex items-center ${isStartMenuOpen ? 'border-t-black border-l-black border-b-white border-r-white' : ''}`}
         onClick={onStartClick}
       >
         <img src={startIcon} alt="Start" className="mr-1 h-4 w-4" />
