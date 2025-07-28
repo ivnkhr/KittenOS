@@ -31,7 +31,7 @@ export interface WindowState {
   isMaximized: boolean;
   zIndex: number;
   renderType?: RenderType;
-  currentUrl?: string;
+  iframeUrl?: string;
   content?: React.ReactNode; // Add content property
 }
 

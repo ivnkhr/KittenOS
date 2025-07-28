@@ -168,7 +168,7 @@ const Window: React.FC<WindowProps> = ({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [dragging, dragOffset]);
+  }, [dragging, dragOffset, pos, windowSize, isMaximized, onPositionChange]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -276,12 +276,14 @@ const Window: React.FC<WindowProps> = ({
       
       
       {/* Menu */}
+      { false && (
       <div className="window-menu flex bg-[#C0C0C0] text-black border-b border-[#808080]">
         <div className="px-2 py-1 text-xs hover:bg-[#000080] hover:text-white cursor-pointer">File</div>
         <div className="px-2 py-1 text-xs hover:bg-[#000080] hover:text-white cursor-pointer">Edit</div>
         <div className="px-2 py-1 text-xs hover:bg-[#000080] hover:text-white cursor-pointer">View</div>
         <div className="px-2 py-1 text-xs hover:bg-[#000080] hover:text-white cursor-pointer">Help</div>
       </div>
+      ) }
       
       {/* URL Toolbar for iframe windows */}
       {renderType === 'iframe' && (

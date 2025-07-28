@@ -8,11 +8,12 @@ import projectsIcon from '../assets/icons/directory.svg';
 import contactsIcon from '../assets/icons/msn.svg';
 import computerIcon from '../assets/icons/computer.svg';
 import recycleIcon from '../assets/icons/recycle.svg';
+import musicIcon from '../assets/icons/app-icon--music-player-.png';
 
 // Window initial properties map
 const initialWindowProps = {
   cv: {
-    title: 'Blog Page Browser W',
+    title: 'Curriculum Vitae.txt',
     icon: cvIcon,
     position: { x: 10, y: 0 },
     size: { width: 600, height: 600 },
@@ -20,27 +21,23 @@ const initialWindowProps = {
     iframeUrl: 'https://ivnkhr.com'
   },
   projects: {
-    title: 'Projects',
+    title: 'My Work - Folder',
     icon: projectsIcon,
     position: { x: 200, y: 100 },
     size: { width: 550, height: 450 },
   },
   contacts: {
-    title: 'Contact Me',
+    title: 'Reach Me Out - Form',
     icon: contactsIcon,
     position: { x: 250, y: 150 },
     size: { width: 400, height: 300 },
+    rt: 'iframe' as any,
+    iframeUrl: 'https://ivnkhr.com'
   },
   computer: {
-    title: 'My Computer',
+    title: 'About KittenOS',
     icon: computerIcon,
     position: { x: 180, y: 120 },
-    size: { width: 400, height: 300 },
-  },
-  recycle: {
-    title: 'Recycle Bin',
-    icon: recycleIcon,
-    position: { x: 220, y: 140 },
     size: { width: 400, height: 300 },
   },
   // Project-specific windows
@@ -50,7 +47,7 @@ const initialWindowProps = {
     position: { x: 300, y: 100 },
     size: { width: 400, height: 300 },
     rt: 'iframe' as any,
-    url: 'https://ivnkhr.com'
+    iframeUrl: 'https://ivnkhr.com'
   },
   'project-mentalquest': {
     title: 'MentalQuest',
@@ -65,10 +62,10 @@ const initialWindowProps = {
     size: { width: 400, height: 300 },
   },
   winamp: {
-    title: 'Winamp',
+    title: 'Audio Player / [ KittenOST - ivantheone ]',
     icon: computerIcon,
-    position: { x: 150, y: 150 },
-    size: { width: 400, height: 300 },
+    position: { x: window.innerWidth - 20 - 400, y: window.innerHeight - 20 - 350 - 30 },
+    size: { width: 400, height: 350 },
   }
 };
 
@@ -90,7 +87,7 @@ export function useWindowManager() {
         
         positions.forEach(pos => {
           if (pos.isOpen) {
-            const props = initialWindowProps[pos.appType as keyof typeof initialWindowProps];
+            const props = initialWindowProps[pos.appType as keyof typeof initialWindowProps] as any;
             console.log('props', props);
             if (props) {
               const windowState: WindowState = {
@@ -226,7 +223,8 @@ export function useWindowManager() {
   };
 
   // Open a window
-  const openWindow = (appType: AppType, iframeUrl?: string) => {
+  const openWindow = (appType: AppType) => {
+
     const existingWindow = windows.find(window => window.type === appType);
     
     if (existingWindow) {
@@ -249,20 +247,6 @@ export function useWindowManager() {
     // Get initial properties for the window type
     let props = initialWindowProps[appType as keyof typeof initialWindowProps];
     
-    // Handle dynamic project windows
-    if (!props && appType.startsWith('project-')) {
-      props = {
-        title: appType.split('-').slice(1).map(word => 
-          word.charAt(0).toUpperCase() + word.slice(1)
-        ).join('-'),
-        icon: computerIcon,
-        position: { x: 300 + Math.random() * 100, y: 100 + Math.random() * 100 },
-        size: { width: 800, height: 600 },
-        rt: 'iframe' as const,
-        url: iframeUrl || 'about:blank'
-      };
-    }
-    
     if (!props) {
       console.error(`No props found for app type: ${appType}`);
       return;
@@ -282,7 +266,9 @@ export function useWindowManager() {
       size: size,
       isMinimized: isMinimized,
       isMaximized: isMaximized,
-      zIndex: zIndex
+      zIndex: zIndex,
+      renderType: (props as any).rt,
+      iframeUrl: (props as any).iframeUrl
     };
     
     // Increment zIndex for next window

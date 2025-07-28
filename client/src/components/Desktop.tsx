@@ -8,9 +8,7 @@ import { useState } from 'react';
 import { Project } from '../lib/types';
 
 // App components
-import CV from './apps/CV';
 import Projects from './apps/Projects';
-import Contacts from './apps/Contacts';
 import MyComputer from './apps/MyComputer';
 import Winamp from './apps/Winamp';
 
@@ -20,12 +18,28 @@ import directoryIcon from '../assets/icons/directory.svg';
 import notepadIcon from '../assets/icons/notepad.svg';
 import msnIcon from '../assets/icons/msn.svg';
 import recycleIcon from '../assets/icons/recycle.svg';
+import musicIcon from '../assets/icons/app-icon--music-player-.png';
 
 interface DesktopProps {
   projects: Project[];
 }
 
 export default function Desktop({ projects }: DesktopProps) {
+
+  const renderWindowContent = (window: any) => {
+    console.log(window);
+    switch (window.type) {
+      case 'projects':
+        return <Projects projects={projects} onOpenProject={handleOpenProject} />;
+      case 'computer':
+        return <MyComputer />;
+      case 'winamp':
+        return (<Winamp />);
+      default:
+        return <div className="p-4">Unknown application type: {window.type}</div>;
+    }
+  };
+
   const {
     windows,
     activeWindowId,
@@ -63,27 +77,11 @@ export default function Desktop({ projects }: DesktopProps) {
   }, []);
 
   const handleOpenProject = (project: Project) => {
-    const appType = `project-${project.title.toLowerCase().replace(/\s+/g, '')}` as any;
-    openWindow(appType, project.demoUrl);
+    const appType = `${project.demoUrl}` as any;
+    openWindow(appType);
   };
 
-  const renderWindowContent = (window: any) => {
-    console.log(window);
-    switch (window.type) {
-      case 'projects':
-        return <Projects projects={projects} onOpenProject={handleOpenProject} />;
-      case 'contacts':
-        return <Contacts />;
-      case 'computer':
-        return <MyComputer />;
-      case 'winamp':
-        return (<Winamp />);
-      case 'recycle':
-        return <div className="p-4"><h2>Recycle Bin</h2><p>No items in recycle bin.</p></div>;
-      default:
-        return <div className="p-4">Unknown application type: {window.type}</div>;
-    }
-  };
+
 
   return (
     <div 
@@ -95,6 +93,33 @@ export default function Desktop({ projects }: DesktopProps) {
       }}
     >
       {/* Desktop Icons */}
+      <div className="absolute top-4 right-4 flex flex-col gap-4">
+
+      <DesktopIcon
+          icon={computerIcon}
+          label="X"
+          onDoubleClick={() => {
+            window.open('https://x.com', '_blank');
+          }}
+        />
+
+        <DesktopIcon
+          icon={computerIcon}
+          label="YouTube"
+          onDoubleClick={() => {
+            window.open('https://YouTube.com', '_blank');
+          }}
+        />
+
+        <DesktopIcon
+          icon={computerIcon}
+          label="Web Page"
+          onDoubleClick={() => {
+            window.open('https://ivnkhr.com', '_blank');
+          }}
+        />
+
+      </div>
       <div className="absolute top-4 left-4 flex flex-col gap-4">
         <DesktopIcon
           icon={computerIcon}
@@ -103,12 +128,12 @@ export default function Desktop({ projects }: DesktopProps) {
         />
         <DesktopIcon
           icon={directoryIcon}
-          label="Projects"
+          label="My Projects"
           onDoubleClick={() => openWindow('projects')}
         />
         <DesktopIcon
           icon={notepadIcon}
-          label="Blog"
+          label="My CV"
           onDoubleClick={() => openWindow('cv')}
         />
         <DesktopIcon
@@ -117,23 +142,10 @@ export default function Desktop({ projects }: DesktopProps) {
           onDoubleClick={() => openWindow('contacts')}
         />
         <DesktopIcon
-          icon={recycleIcon}
-          label="Recycle Bin"
-          onDoubleClick={() => openWindow('recycle')}
-        />
-        <DesktopIcon
-          icon={computerIcon}
-          label="Winamp"
+          icon={musicIcon}
+          label="Audio Player"
           onDoubleClick={() => openWindow('winamp')}
         />
-        <DesktopIcon
-          icon={computerIcon}
-          label="X"
-          onDoubleClick={() => {
-            window.open('https://x.com', '_blank');
-          }}
-        />
-          
       </div>
 
       {/* Windows */}
@@ -149,6 +161,7 @@ export default function Desktop({ projects }: DesktopProps) {
           isMaximized={window.isMaximized}
           zIndex={window.zIndex}
           renderType={window.renderType}
+          iframeUrl={window.iframeUrl}
           isActive={activeWindowId === window.id}
           onClose={() => closeWindow(window.id)}
           onMinimize={() => minimizeWindow(window.id)}

@@ -10,7 +10,7 @@ const staticProjects: Project[] = [
     title: "Blog Page Browser",
     description: "Personal blog showcasing technical articles and thoughts on web development.",
     technologies: "Gatsby, React, GraphQL",
-    demoUrl: "https://ivnkhr.com",
+    demoUrl: "project-lesstube",
     sourceUrl: "https://github.com/example/blog",
   },
   {

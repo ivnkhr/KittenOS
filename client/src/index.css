@@ -82,9 +82,22 @@
 ::-webkit-scrollbar-button {
   display: block;
   background-color: #c0c0c0;
-  border: 1px solid #808080;
+  border: 1px solid #000000;
   border-left-color: #fff;
   border-top-color: #fff;
   height: 16px;
   width: 16px;
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/7e/Chevron-up.svg'); 
+  background-size: cover;
+  background-position: center;
+}
+
+
+
+::-webkit-scrollbar-button:vertical:start:increment,
+::-webkit-scrollbar-button:vertical:end:decrement,
+::-webkit-scrollbar-button:horizontal:start:increment, 
+::-webkit-scrollbar-button:horizontal:end:decrement 
+{
+    display: none;
 }
