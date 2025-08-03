@@ -95,7 +95,7 @@ function App() {
       onClick={handleScreenClick}
     >
       <div className={desktopClassName} onAnimationEnd={handleAnimationEnd}>
-        <Desktop projects={projects} onShutdown={handleShutdown} />
+        <Desktop projects={projects} onShutdown={handleShutdown} animationState={animationState} />
       </div>
     </div>
   );

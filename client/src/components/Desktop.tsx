@@ -20,12 +20,59 @@ import msnIcon from '../assets/icons/msn.svg';
 import recycleIcon from '../assets/icons/recycle.svg';
 import musicIcon from '../assets/icons/app-icon--music-player-.png';
 
+import wallpaper0 from '../assets/wallpaper-cat-0.jpg';
+import wallpaper1 from '../assets/wallpaper-cat-1.jpg';
+import wallpaper2 from '../assets/wallpaper-cat-2.jpg';
+
 interface DesktopProps {
   projects: Project[];
   onShutdown: () => void;
+  animationState: string;
 }
 
-export default function Desktop({ projects, onShutdown }: DesktopProps) {
+export default function Desktop({ projects, onShutdown, animationState }: DesktopProps) {
+
+  const wallpapers = [wallpaper0, wallpaper1, wallpaper2];
+  const [currentWallpaperIndex, setCurrentWallpaperIndex] = useState(0);
+  const [previousWallpaperIndex, setPreviousWallpaperIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPreviousWallpaperIndex(currentWallpaperIndex);
+      setCurrentWallpaperIndex((prevIndex) => (prevIndex + 1) % wallpapers.length);
+    }, 7000); // Change image every 5 seconds
+    return () => clearInterval(interval);
+  }, [currentWallpaperIndex, wallpapers.length]);
+
+  const { 
+    windows,
+    activeWindowId,
+    openWindow,
+    closeWindow,
+    minimizeWindow,
+    maximizeWindow,
+    bringToFront,
+    handlePositionChange
+  } = useWindowManager();
+ 
+  useEffect(() => {
+    openWindow('winamp');
+
+    // Preload images
+    wallpapers.forEach(wallpaper => {
+      const img = new Image();
+      img.src = wallpaper;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (animationState === 'shutting-down') {
+      const winampWindow = windows.find(window => window.type === 'winamp');
+      if (winampWindow) {
+        closeWindow(winampWindow.id);
+      }
+    }
+  }, [animationState, windows, closeWindow]);
 
   const renderWindowContent = (window: any) => {
     console.log(window);
@@ -40,17 +87,6 @@ export default function Desktop({ projects, onShutdown }: DesktopProps) {
         return <div className="p-4">Unknown application type: {window.type}</div>;
     }
   };
-
-  const {
-    windows,
-    activeWindowId,
-    openWindow,
-    closeWindow,
-    minimizeWindow,
-    maximizeWindow,
-    bringToFront,
-    handlePositionChange
-  } = useWindowManager();
 
   const [showStartMenu, setShowStartMenu] = useState(false);
 
@@ -86,9 +122,9 @@ export default function Desktop({ projects, onShutdown }: DesktopProps) {
 
   return (
     <div 
-      className="h-full w-full relative overflow-hidden main-desktop-background"
+      className="h-full w-full relative overflow-hidden main-desktop-background transition-opacity duration-1000 ease-in-out"
       style={{
-        backgroundImage: `url('/src/assets/wallpaper-cat.jpg')`,
+        backgroundImage: `url(${wallpapers[currentWallpaperIndex]})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

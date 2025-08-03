@@ -102,32 +102,41 @@
     display: none;
 }
 
+.main-desktop-background {
+  transition: background-image 4s ease-in-out;   
+  /* No background-image transition here */
+}
+
 .crt-on {
-  animation: crt-on 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  animation: crt-on 0.9s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
 .crt-off {
-  animation: crt-off 0.7s cubic-bezier(0.755, 0.05, 0.855, 0.06) forwards;
+  animation: crt-off 0.6s cubic-bezier(0.755, 0.05, 0.855, 0.06) forwards;
 }
 
 @keyframes crt-on {
   0% {
     transform: scaleY(0.005) scaleX(0);
+    filter: invert(100%) brightness(200%);
     opacity: 0;
     visibility: visible;
   }
   50% {
     transform: scaleY(0.005) scaleX(1);
     opacity: 1;
+    filter: invert(0%) brightness(200%); 
   }
   100% {
     transform: scaleY(1) scaleX(1);
     opacity: 1;
+    filter: invert(0%) brightness(100%);
   }
 }
 
 @keyframes crt-off {
   0% {
+    filter: invert(0%) brightness(100%);
     transform: scaleY(1) scaleX(1);
     opacity: 1;
     visibility: visible;
@@ -135,6 +144,7 @@
   50% {
     transform: scaleY(0.005) scaleX(1);
     opacity: 1;
+    filter: invert(100%) brightness(200%); 
   }
   100% {
     transform: scaleY(0.005) scaleX(0);
