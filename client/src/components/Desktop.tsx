@@ -1,10 +1,10 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
+import MatrixCanvas from './MatrixCanvas';
 import { useWindowManager } from '../hooks/useWindowManager';
 import Window from './Window';
 import Taskbar from './Taskbar';
 import DesktopIcon from './DesktopIcon';
 import StartMenu from './StartMenu';
-import { useState } from 'react';
 import { Project } from '../lib/types';
 
 // App components
@@ -22,9 +22,10 @@ import musicIcon from '../assets/icons/app-icon--music-player-.png';
 
 interface DesktopProps {
   projects: Project[];
+  onShutdown: () => void;
 }
 
-export default function Desktop({ projects }: DesktopProps) {
+export default function Desktop({ projects, onShutdown }: DesktopProps) {
 
   const renderWindowContent = (window: any) => {
     console.log(window);
@@ -85,13 +86,14 @@ export default function Desktop({ projects }: DesktopProps) {
 
   return (
     <div 
-      className="h-full w-full relative overflow-hidden"
+      className="h-full w-full relative overflow-hidden main-desktop-background"
       style={{
         backgroundImage: `url('/src/assets/wallpaper-cat.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
+      <MatrixCanvas />
       {/* Desktop Icons */}
       <div className="absolute top-4 right-4 flex flex-col gap-4">
 
@@ -183,6 +185,7 @@ export default function Desktop({ projects }: DesktopProps) {
             openWindow(appType);
             setShowStartMenu(false);
           }}
+          onShutdown={onShutdown}
         />
       )}
 

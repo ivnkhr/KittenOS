@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import Desktop from './components/Desktop';
 import { Project } from './lib/types';
 
+import turnOnSound from './assets/sounds/turnon.mp3';
+import closeSound from './assets/sounds/close.mp3';
+
 // Static projects data (previously from backend)
 const staticProjects: Project[] = [
   {
@@ -41,18 +44,59 @@ const staticProjects: Project[] = [
 
 function App() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [animationState, setAnimationState] = useState('off'); // off, on, shutting-down
+
+  const turnOnAudio = new Audio(turnOnSound);
+  const closeAudio = new Audio(closeSound);
 
   useEffect(() => {
-    console.log("App component mounted");
     // Load static projects data
     setProjects(staticProjects);
-    console.log("Projects loaded:", staticProjects);
+    // Start the boot-up animation
+    setAnimationState('on');
+    console.log('App initialized, animationState set to: on');
+    turnOnAudio.play();
   }, []);
 
-  console.log("App component rendering...");
+  const handleShutdown = () => {
+    setAnimationState('shutting-down');
+    console.log('Shutdown initiated, animationState set to: shutting-down');
+    closeAudio.play();
+  };
+
+  const handleAnimationEnd = () => {
+    if (animationState === 'shutting-down') {
+      setAnimationState('off');
+      console.log('Animation ended, animationState set to: off');
+    }
+  };
+
+  const handleScreenClick = () => {
+    console.log('Screen clicked. Current animationState:', animationState);
+    if (animationState === 'off' || animationState === 'shutting-down') {
+      setAnimationState('on');
+      console.log('Screen turned on, animationState set to: on');
+      turnOnAudio.play();
+    }
+  };
+
+  let desktopClassName = 'h-full w-full';
+  if (animationState === 'on') {
+    desktopClassName += ' crt-on';
+  } else if (animationState === 'shutting-down') {
+    desktopClassName += ' crt-off';
+  } else {
+    desktopClassName += ' hidden';
+  }
+
   return (
-    <div className="h-screen w-screen overflow-hidden" style={{backgroundColor: '#008080'}}>
-      <Desktop projects={projects} />
+    <div
+      className="h-screen w-screen overflow-hidden bg-black"
+      onClick={handleScreenClick}
+    >
+      <div className={desktopClassName} onAnimationEnd={handleAnimationEnd}>
+        <Desktop projects={projects} onShutdown={handleShutdown} />
+      </div>
     </div>
   );
 }

@@ -241,7 +241,7 @@ const Window: React.FC<WindowProps> = ({
     >
       {/* Titlebar */}
       <div 
-        className={`window-titlebar ${isActive ? 'bg-[#000080]' : 'bg-[#808080]'} text-white flex justify-between items-center px-1 py-1 select-none`}
+        className={`window-titlebar ${isActive ? 'bg-green-900' : 'bg-[#808080]'} text-white flex justify-between items-center px-1 py-1 select-none`}
         onMouseDown={handleTitlebarMouseDown}
       >
         <div className="flex items-center">

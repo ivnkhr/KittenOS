@@ -13,15 +13,16 @@ import shutdownIcon from '../assets/icons/shutdown.svg';
 interface StartMenuProps {
   onClose: () => void;
   onOpenApp: (appType: AppType) => void;
+  onShutdown: () => void;
 }
 
-const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
+const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp, onShutdown }) => {
   return (
     <div 
       id="start-menu" 
       className="start-menu absolute left-0 bottom-7 w-[180px] border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] bg-[#C0C0C0] z-10"
     >
-      <div className="flex bg-[#000080] text-white p-1 items-center">
+      <div className="flex bg-green-900 text-white p-1 items-center">
         <img src={computerIcon} alt="Windows 96" className="mr-2 h-6 w-6" />
         <div className="font-bold text-sm">KittenOS</div>
       </div>
@@ -56,7 +57,7 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose, onOpenApp }) => {
         
         <div className="border-t border-[#808080] my-1"></div>
         
-        <div className="flex items-center p-1 hover:bg-[#000080] hover:text-white cursor-pointer" onClick={() => {onClose();}}>
+        <div className="flex items-center p-1 hover:bg-[#000080] hover:text-white cursor-pointer" onClick={() => { onShutdown(); onClose(); }}>
           <img src={shutdownIcon} alt="Shut Down" className="mr-2 h-6 w-6" />
           <span className="text-sm">Shut Down...</span>
         </div>
