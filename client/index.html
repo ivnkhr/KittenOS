@@ -3,11 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <script>
+      (function() {
+        var isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|Windows Phone/i.test(navigator.userAgent);
+        if (isMobile) {
+          window.location.href = "https://ivnkhr.com";
+        }
+      })();
+    </script>
     <title>KittenOS</title>
         <link rel="icon" href="/src/assets/os.png" type="image/x-icon">
     <meta property="og:image" content="/src/assets/os.png" />
 
     <meta name="description" content="KittenOS - ivantheone's Vibe-Coded Web Developer Portfolio Website." />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q27XM0TLKR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-Q27XM0TLKR');
+    </script>
     <meta property="og:title" content="ivantheone's - KittenOS" />
     <meta property="og:description" content="Vibe-Coded Web Developer Portfolio Website." />
     <meta property="og:type" content="website" />
