@@ -87,12 +87,18 @@
   border-top-color: #fff;
   height: 16px;
   width: 16px;
-  background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/7e/Chevron-up.svg'); 
-  background-size: cover;
+  filter: invert(100%);
+  background-image: url('src/assets/icons/win96/+.png');
+   
+  background-size: 90%;
   background-position: center;
+  background-repeat: no-repeat;
 }
 
 
+::-webkit-scrollbar-button:vertical:end:increment{
+  background-image: url('src/assets/icons/win96/-.png');
+}
 
 ::-webkit-scrollbar-button:vertical:start:increment,
 ::-webkit-scrollbar-button:vertical:end:decrement,

@@ -245,38 +245,34 @@ const Window: React.FC<WindowProps> = ({
         onMouseDown={handleTitlebarMouseDown}
       >
         <div className="flex items-center">
-          <img src={icon} alt={title} className="mr-1 h-4 w-4" />
+          <img style={{ transform: 'scale(2)', imageRendering: 'pixelated' }} src={icon} alt={title} className="mr-1 h-4 w-4" />
           <span className="text-xs">{title}</span>
         </div>
         <div className="flex">
           <button 
-            className="window-button w-4 h-3.5 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] mr-1 flex items-center justify-center"
+            className="window-button window-button-close w-4 h-3.5 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] flex items-center justify-center text-xs"
             onClick={() => { onMinimize(); playSound(); }}
           >
-            <div className="w-2 h-0.5 bg-black -mt-1">_</div>
+            _
           </button>
           <button 
-            className="window-button w-4 h-3.5 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] mr-1 flex items-center justify-center"
+            className="window-button window-button-close w-4 h-3.5 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] flex items-center justify-center text-xs"
             onClick={() => { onMaximize(); playSound(); }}
           >
-            {isMaximized ? (
-              <div className="w-2 h-2 border border-black bg-[#C0C0C0] -mt-0.5"></div>
-            ) : (
-              <div className="w-2 h-2 border border-black -mt-0.5"></div>
-            )}
+            o
           </button>
           <button 
             className="window-button window-button-close w-4 h-3.5 border-[2px] border-[#FFFFFF] border-r-[#808080] border-b-[#808080] flex items-center justify-center text-xs"
             onClick={() => { onClose(); playSound(); }}
           >
-            X
+            x
           </button>
         </div>
       </div>
       
       
       {/* Menu */}
-      { false && (
+      { renderType !== 'iframe' && (
       <div className="window-menu flex bg-[#C0C0C0] text-black border-b border-[#808080]">
         <div className="px-2 py-1 text-xs hover:bg-[#000080] hover:text-white cursor-pointer">File</div>
         <div className="px-2 py-1 text-xs hover:bg-[#000080] hover:text-white cursor-pointer">Edit</div>
@@ -296,6 +292,7 @@ const Window: React.FC<WindowProps> = ({
             onKeyPress={handleUrlInputKeyPress}
             className="flex-1 px-1 py-0.5 text-xs border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] bg-white text-black"
             placeholder="Enter URL..."
+            readOnly={true}
           />
           <button
             onClick={handleGoClick}
@@ -306,8 +303,6 @@ const Window: React.FC<WindowProps> = ({
         </div>
       )}
       
-      { renderType }
-      { iframeUrl }
 
       {/* Content */}
       <div className={`window-content ${renderType === 'iframe' ? 'h-[calc(100%-70px)]' : 'h-[calc(100%-42px)]'} bg-white border-[2px] border-[#808080] border-r-[#FFFFFF] border-b-[#FFFFFF] overflow-y-auto`}>

@@ -1,0 +1,1 @@
+KittenOS - Replit + Firebase Studio fully vibecoded portfolio website interface.

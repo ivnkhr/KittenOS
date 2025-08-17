@@ -3,67 +3,47 @@ import { useState, useEffect } from 'react';
 import { WindowState, AppType, StoredWindowPosition } from '../lib/types';
 
 // Import icons for windows
-import cvIcon from '../assets/icons/notepad.svg';
-import projectsIcon from '../assets/icons/directory.svg';
-import contactsIcon from '../assets/icons/msn.svg';
-import computerIcon from '../assets/icons/computer.svg';
-import recycleIcon from '../assets/icons/recycle.svg';
-import musicIcon from '../assets/icons/app-icon--music-player-.png';
+import computerIcon from '../assets/icons/win96/pc.png';
+import directoryIcon from '../assets/icons/win96/projects.png';
+import notepadIcon from '../assets/icons/win96/cv.png';
+import msnIcon from '../assets/icons/win96/contacts.png';
+import musicIcon from '../assets/icons/win96/music.png';
 
 // Window initial properties map
 const initialWindowProps = {
   cv: {
     title: 'Curriculum Vitae.txt',
-    icon: cvIcon,
+    icon: notepadIcon,
     position: { x: 10, y: 0 },
-    size: { width: 600, height: 600 },
+    size: { width: 600, height: 800 },
     rt: 'iframe' as any,
-    iframeUrl: 'https://ivnkhr.com'
+    iframeUrl: 'https://ivnkhr.com/cv'
   },
   projects: {
     title: 'My Work - Folder',
-    icon: projectsIcon,
+    icon: directoryIcon,
     position: { x: 200, y: 100 },
-    size: { width: 550, height: 450 },
+    size: { width: 750, height: 550 },
+    rt: 'iframe' as any,
+    iframeUrl: 'https://ivnkhr.com/category/projects/'
   },
   contacts: {
     title: 'Reach Me Out - Form',
-    icon: contactsIcon,
-    position: { x: 250, y: 150 },
+    icon: msnIcon,
+    position: { x: 350, y: 250 },
     size: { width: 400, height: 300 },
     rt: 'iframe' as any,
-    iframeUrl: 'https://ivnkhr.com'
+    iframeUrl: 'https://ivnkhr.com/contact-me'
   },
   computer: {
     title: 'About KittenOS',
     icon: computerIcon,
     position: { x: 180, y: 120 },
-    size: { width: 400, height: 300 },
-  },
-  // Project-specific windows
-  'project-lesstube': {
-    title: 'LessTube',
-    icon: cvIcon,
-    position: { x: 300, y: 100 },
-    size: { width: 400, height: 300 },
-    rt: 'iframe' as any,
-    iframeUrl: 'https://ivnkhr.com'
-  },
-  'project-mentalquest': {
-    title: 'MentalQuest',
-    icon: cvIcon,
-    position: { x: 350, y: 150 },
-    size: { width: 400, height: 300 },
-  },
-  'project-legacyspace': {
-    title: 'LegacySPACE.mobile',
-    icon: cvIcon,
-    position: { x: 400, y: 200 },
-    size: { width: 400, height: 300 },
+    size: { width: 400, height: 400 },
   },
   winamp: {
     title: 'Audio Player / [ KittenOST - ivantheone ]',
-    icon: computerIcon,
+    icon: musicIcon,
     position: { x: window.innerWidth - 20 - 400, y: window.innerHeight - 20 - 350 - 30 },
     size: { width: 400, height: 350 },
   }
@@ -146,22 +126,13 @@ export function useWindowManager() {
           isOpen: true
         };
         
-        if (existingIndex >= 0) {
-          updatedPositions[existingIndex] = positionData;
-        } else {
-          updatedPositions.push(positionData);
-        }
+
       });
       
-      // Mark closed windows
-      const openWindowIds = new Set(updatedWindows.map(w => w.id));
-      updatedPositions.forEach(pos => {
-        if (!openWindowIds.has(pos.windowId)) {
-          pos.isOpen = false;
-        }
-      });
+      // Filter out closed windows before saving
+      const finalPositions = updatedPositions.filter(pos => pos.isOpen);
       
-      localStorage.setItem('windowPositions', JSON.stringify(updatedPositions));
+      localStorage.setItem('windowPositions', JSON.stringify(finalPositions));
     } catch (error) {
       console.error('Failed to save window states:', error);
     }

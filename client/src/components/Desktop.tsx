@@ -13,12 +13,11 @@ import MyComputer from './apps/MyComputer';
 import Winamp from './apps/Winamp';
 
 // Import desktop icons
-import computerIcon from '../assets/icons/computer.svg';
-import directoryIcon from '../assets/icons/directory.svg';
-import notepadIcon from '../assets/icons/notepad.svg';
-import msnIcon from '../assets/icons/msn.svg';
-import recycleIcon from '../assets/icons/recycle.svg';
-import musicIcon from '../assets/icons/app-icon--music-player-.png';
+import computerIcon from '../assets/icons/win96/pc.png';
+import directoryIcon from '../assets/icons/win96/projects.png';
+import notepadIcon from '../assets/icons/win96/cv.png';
+import msnIcon from '../assets/icons/win96/contacts.png';
+import musicIcon from '../assets/icons/win96/music.png';
 
 import wallpaper0 from '../assets/wallpaper-cat-0.jpg';
 import wallpaper1 from '../assets/wallpaper-cat-1.jpg';
@@ -33,17 +32,16 @@ interface DesktopProps {
 export default function Desktop({ projects, onShutdown, animationState }: DesktopProps) {
 
   const wallpapers = [wallpaper0, wallpaper1, wallpaper2];
-  const [currentWallpaperIndex, setCurrentWallpaperIndex] = useState(0);
-  const [previousWallpaperIndex, setPreviousWallpaperIndex] = useState(0);
+  const [activeWallpaperIndex, setActiveWallpaperIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setPreviousWallpaperIndex(currentWallpaperIndex);
-      setCurrentWallpaperIndex((prevIndex) => (prevIndex + 1) % wallpapers.length);
+      setActiveWallpaperIndex((prevIndex) => (prevIndex + 1) % wallpapers.length);
     }, 7000); // Change image every 5 seconds
     return () => clearInterval(interval);
-  }, [currentWallpaperIndex, wallpapers.length]);
+  }, [wallpapers.length]);
 
+  
   const { 
     windows,
     activeWindowId,
@@ -122,41 +120,24 @@ export default function Desktop({ projects, onShutdown, animationState }: Deskto
 
   return (
     <div 
-      className="h-full w-full relative overflow-hidden main-desktop-background transition-opacity duration-1000 ease-in-out"
-      style={{
-        backgroundImage: `url(${wallpapers[currentWallpaperIndex]})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
+      className="h-full w-full relative overflow-hidden main-desktop-background"
     >
+      {/* Wallpaper Container */}
+      <div className="absolute inset-0 z-0">
+        {wallpapers.map((wallpaper, index) => (
+          <img
+            key={index}
+            src={wallpaper}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+              index === activeWallpaperIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ))}
+      </div>
       <MatrixCanvas />
       {/* Desktop Icons */}
       <div className="absolute top-4 right-4 flex flex-col gap-4">
-
-      <DesktopIcon
-          icon={computerIcon}
-          label="X"
-          onDoubleClick={() => {
-            window.open('https://x.com', '_blank');
-          }}
-        />
-
-        <DesktopIcon
-          icon={computerIcon}
-          label="YouTube"
-          onDoubleClick={() => {
-            window.open('https://YouTube.com', '_blank');
-          }}
-        />
-
-        <DesktopIcon
-          icon={computerIcon}
-          label="Web Page"
-          onDoubleClick={() => {
-            window.open('https://ivnkhr.com', '_blank');
-          }}
-        />
-
+        KittenOS v.0.0.1
       </div>
       <div className="absolute top-4 left-4 flex flex-col gap-4">
         <DesktopIcon
@@ -164,15 +145,16 @@ export default function Desktop({ projects, onShutdown, animationState }: Deskto
           label="My Computer"
           onDoubleClick={() => openWindow('computer')}
         />
-        <DesktopIcon
-          icon={directoryIcon}
-          label="My Projects"
-          onDoubleClick={() => openWindow('projects')}
-        />
+
         <DesktopIcon
           icon={notepadIcon}
           label="My CV"
           onDoubleClick={() => openWindow('cv')}
+        />
+        <DesktopIcon
+          icon={directoryIcon}
+          label="My Projects"
+          onDoubleClick={() => openWindow('projects')}
         />
         <DesktopIcon
           icon={msnIcon}
